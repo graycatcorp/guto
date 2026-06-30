@@ -4,7 +4,16 @@ App de **gestão de caixa** da GrayCat (Projeto GUTO). Web app de **arquivo úni
 (`index.html`), sem build, login + dados compartilhados via **Supabase**.
 Ver também `CLAUDE.md` (contexto base do projeto).
 
-> Última atualização (2026-06-30): **Receitas + Resultado/Fechamento + Contas bancárias.**
+> Última atualização (2026-06-30, parte 2): **Dados da empresa + fechar/reabrir mês + relatório PDF + envio por e-mail.**
+> - Em Resultado: bloco **Dados da empresa** (Nome Fantasia, Razão Social, CNPJ — editáveis em Config).
+> - **Fechar o mês**: trava (`S.closures["<ano>-<m>"]`) os lançamentos do mês (Extratos e ticks de aporte
+>   ficam `disabled`); botão **Reabrir** desfaz. Helpers `isClosed(m)`/`closureKey(m)`/`closureInfo(m)`.
+> - **Relatório (PDF)**: `monthReportHTML(m)` abre janela imprimível com cabeçalho da empresa + consolidado
+>   (custos, receitas, aportes/retiradas, resultado líquido). `reportMonth(m)` faz `window.open`+`print`.
+> - **Enviar por e-mail**: `emailMonth(m)` monta `mailto:` com os e-mails dos sócios (cadastrados em Config)
+>   + resumo no corpo. Sem backend — PDF gerado à parte e anexado manualmente.
+>
+> Parte 1 (mesmo dia): **Receitas + Resultado/Fechamento + Contas bancárias.**
 > - Cadastro ganhou toggle **Custos | Receitas** (receita = modelo enxuto).
 > - Extratos viraram **Entradas e Saídas** (tick de recebido nas receitas).
 > - Aba "Aportes" virou **Resultado & Fechamento**: saldo = receita recebida − gastos previstos

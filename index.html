@@ -219,7 +219,10 @@ let curMonth=new Date().getMonth();
 function seed(){
   return {
     settings:{org:"GrayCat - Projeto GUTO", year:2026, defaultDay:5, aporteDay:5,
-      socios:[{id:"s1",name:"Sócio 1"},{id:"s2",name:"Sócio 2"},{id:"s3",name:"Sócio 3"}]},
+      nomeFantasia:"Gray Cat Corporation",
+      razaoSocial:"D EMANUEL MATOS FARIAS BRANCO - DESENVOLVIMENTO DE SOFTWARE LTDA",
+      cnpj:"60.891.487/0001-71",
+      socios:[{id:"s1",name:"Sócio 1",email:""},{id:"s2",name:"Sócio 2",email:""},{id:"s3",name:"Sócio 3",email:""}]},
     costs:[
       c("Google Workspace (e-mail/Drive)","adm","Mensal","Fixo",196,"Jun","Indeterminado","À vista",0,5,"Cartão de crédito","Contas do time."),
       c("Google Cloud & API","Infra","Mensal","Variável",50,"Jun","Indeterminado","À vista",0,5,"Cartão de crédito","Valor é prévia; medir no console."),
@@ -233,7 +236,8 @@ function seed(){
     aportes:{},   // "socioId|m": {feito:bool, data:"YYYY-MM-DD"}  (aporte OU retirada de lucro)
     revenues:[],  // receitas previstas/recorrentes
     receipts:{},  // "revId|m": {recebido:bool, valorReal:num|null}
-    accounts:[]   // contas/instituições (instituição, tipo, saldo manual)
+    accounts:[],  // contas/instituições (instituição, tipo, saldo manual)
+    closures:{}   // "<ano>-<m>": {closed:bool, at:"YYYY-MM-DD", by:"nome"}  (trava de fechamento)
   };
 }
 function c(desc,tipo,per,classe,valor,ini,fim,pag,q,dia,met,obs,by){
@@ -347,7 +351,17 @@ function migrate(){ // garante campos novos em estados salvos antes desta versã
   if(!Array.isArray(S.accounts)) S.accounts=[];
   if(!S.payments) S.payments={};
   if(!S.aportes) S.aportes={};
+  if(!S.closures || typeof S.closures!=="object") S.closures={};
+  const st=S.settings||(S.settings={});
+  if(st.nomeFantasia==null) st.nomeFantasia="Gray Cat Corporation";
+  if(st.razaoSocial==null) st.razaoSocial="D EMANUEL MATOS FARIAS BRANCO - DESENVOLVIMENTO DE SOFTWARE LTDA";
+  if(st.cnpj==null) st.cnpj="60.891.487/0001-71";
+  (st.socios||[]).forEach(s=>{ if(s.email==null) s.email=""; });
 }
+/* ---- helpers de fechamento ---- */
+function closureKey(m){return S.settings.year+"-"+m;}
+function isClosed(m){const c=S.closures[closureKey(m)];return !!(c&&c.closed);}
+function closureInfo(m){return S.closures[closureKey(m)]||null;}
 let saveT=null;
 function save(){
   if(CLOUD){ clearTimeout(saveT); saveT=setTimeout(async()=>{
@@ -655,6 +669,7 @@ function vExt(){
   if(fSt)occ=occ.filter(o=>fSt==="Pago"?o.pago:!o.pago);
   if(fQ)occ=occ.filter(o=>o.cost.desc.toLowerCase().includes(fQ.toLowerCase()));
   const tot=occ.reduce((s,o)=>s+o.value,0);
+  const lock=isClosed(m);
   const sel=(arr,cur)=>arr.map(o=>`<option ${o===cur?"selected":""}>${o}</option>`).join("");
   return `<div class="toolbar">
     <select class="in" style="width:auto" onchange="curMonth=+this.value;render()">${MF.map((x,i)=>`<option value="${i}" ${i===m?"selected":""}>${x}</option>`).join("")}</select>
@@ -663,6 +678,7 @@ function vExt(){
     <select class="in" style="width:auto" onchange="fMet=this.value;render()"><option value="">Método: todos</option>${sel(METODOS,fMet)}</select>
     <select class="in" style="width:auto" onchange="fSt=this.value;render()"><option value="">Status: todos</option><option ${fSt==="Pago"?"selected":""}>Pago</option><option ${fSt==="A pagar"?"selected":""}>A pagar</option></select>
     <span class="sp"></span><b>Saídas: ${fmt(tot)}</b></div>
+  ${lock?`<div class="banner">🔒 ${MF[m]} está <b>fechado</b> — lançamentos travados. Reabra em <b>Resultado &amp; Fechamento</b> para editar.</div>`:""}
   <div class="panel"><h3>↓ Saídas (custos) — ${MF[m]} <span class="pill">total ${fmt(tot)}</span></h3>
   <div style="overflow:auto">
   <table><thead><tr><th>Venc.</th><th>Descrição</th><th>Tipo</th><th>Classe</th><th class="r">Valor</th><th>Parc.</th><th>Método</th><th>Valor real</th><th>Pago?</th></tr></thead><tbody>
@@ -674,14 +690,14 @@ function vExt(){
     <td><span class="tag ${o.cost.classe==="Fixo"?"fix":"var"}">${o.cost.classe}</span></td>
     <td class="r">${fmt(o.value)} ${o.preview?'<span class="tag prev">prévia</span>':""}</td>
     <td>${o.parcela||"—"}</td><td>${o.cost.metodo}</td>
-    <td>${o.cost.classe==="Variável"?`<input class="in" style="width:110px;padding:5px" type="number" step="0.01" placeholder="real" value="${o.valorReal??""}" onchange="setReal('${o.key}',this.value)">`:'<span class="muted">—</span>'}</td>
-    <td><input type="checkbox" class="chk" ${o.pago?"checked":""} onchange="setPago('${o.key}',this.checked)"></td></tr>`;}).join("")
+    <td>${o.cost.classe==="Variável"?`<input class="in" style="width:110px;padding:5px" type="number" step="0.01" placeholder="real" value="${o.valorReal??""}" ${lock?"disabled":""} onchange="setReal('${o.key}',this.value)">`:'<span class="muted">—</span>'}</td>
+    <td><input type="checkbox" class="chk" ${o.pago?"checked":""} ${lock?"disabled":""} onchange="setPago('${o.key}',this.checked)"></td></tr>`;}).join("")
     :`<tr><td colspan="9" class="muted" style="padding:24px;text-align:center">Nenhum lançamento com esses filtros.</td></tr>`}
   </tbody></table></div></div>
   ${vExtEntradas(m)}`;
 }
 function vExtEntradas(m){
-  const rocc=revOccMonth(m);
+  const rocc=revOccMonth(m); const lock=isClosed(m);
   return `<div class="panel"><h3>↑ Entradas (receitas) — ${MF[m]} <span class="pill">recebido ${fmt(revReceived(m))} / previsto ${fmt(revMonthTotal(m))}</span></h3>
   <div style="overflow:auto">
   <table><thead><tr><th>Receb.</th><th>Descrição</th><th class="r">Previsto</th><th>Forma</th><th>Valor recebido</th><th>Recebido?</th></tr></thead><tbody>
@@ -692,8 +708,8 @@ function vExtEntradas(m){
     <td><b>${esc(o.rev.desc)}</b></td>
     <td class="r in-up">${fmt(o.base)}</td>
     <td>${o.rev.metodo}</td>
-    <td><input class="in" style="width:120px;padding:5px" type="number" step="0.01" placeholder="real" value="${o.valorReal??""}" onchange="setRevReal('${o.key}',this.value)"></td>
-    <td><input type="checkbox" class="chk" ${o.recebido?"checked":""} onchange="setReceb('${o.key}',this.checked)"></td></tr>`;}).join("")
+    <td><input class="in" style="width:120px;padding:5px" type="number" step="0.01" placeholder="real" value="${o.valorReal??""}" ${lock?"disabled":""} onchange="setRevReal('${o.key}',this.value)"></td>
+    <td><input type="checkbox" class="chk" ${o.recebido?"checked":""} ${lock?"disabled":""} onchange="setReceb('${o.key}',this.checked)"></td></tr>`;}).join("")
     :`<tr><td colspan="6" class="muted" style="padding:24px;text-align:center">Nenhuma receita prevista neste mês. Cadastre em <b>Cadastro → Receitas</b>.</td></tr>`}
   </tbody></table></div></div>`;
 }
@@ -704,7 +720,7 @@ function setRevReal(key,v){ S.receipts[key]=Object.assign({},S.receipts[key],{va
 
 /* ============ RESULTADO / FECHAMENTO ============ */
 function vRes(){
-  const m=curMonth, R=resultState(m), neg=R.neg;
+  const m=curMonth, R=resultState(m), neg=R.neg, lock=isClosed(m), ci=closureInfo(m);
   return `<div class="toolbar">
     <select class="in" style="width:auto" onchange="curMonth=+this.value;render()">${MF.map((x,i)=>`<option value="${i}" ${i===m?"selected":""}>${x} / ${S.settings.year}</option>`).join("")}</select>
     <span class="sp"></span></div>
@@ -720,7 +736,7 @@ function vRes(){
     : `O mês fecha <b>positivo em ${fmt(R.abs)}</b> — sobrou caixa depois dos gastos previstos. Cada sócio pode <b>retirar ${fmt(R.porSocio)}</b> de lucro.`}</p>
   <table><thead><tr><th>Sócio</th><th class="r">${neg?"Deve aportar":"A receber"}</th><th>Data</th><th>${neg?"Aporte feito":"Retirada feita"}</th></tr></thead><tbody>
   ${R.list.map(x=>{
-    const can = currentUser.id==="admin" || CLOUD || currentUser.id===x.socio.id;
+    const can = !lock && (currentUser.id==="admin" || CLOUD || currentUser.id===x.socio.id);
     return `<tr><td>${x.socio.name} ${currentUser.id===x.socio.id?'<span class="pill">você</span>':""}</td>
     <td class="r">${fmt(x.porSocio)}</td>
     <td><input type="date" class="in" style="width:160px;padding:5px" value="${x.data}" ${can?"":"disabled"} onchange="setAporteData('${x.socio.id}',this.value)"></td>
@@ -729,7 +745,93 @@ function vRes(){
   </tbody><tfoot><tr><th>Total</th><th class="r">${fmt(R.abs)}</th>
     <th colspan="2">${neg?"Aportado":"Retirado"} ${fmt(R.feito)} · Pendente ${fmt(R.pendente)}</th></tr></tfoot></table>
   <p class="muted" style="margin-top:10px">Base do cálculo: <b>necessidade do mês</b> — receita recebida menos os gastos previstos. Cada sócio marca o próprio aporte/retirada (no modo nuvem).</p></div>
+  <div class="panel"><h3>🔒 Fechar o mês — ${MF[m]} / ${S.settings.year}</h3>
+  ${lock
+    ? `<div class="banner" style="background:rgba(95,125,58,.16);border-color:rgba(95,125,58,.6);color:#4c6630">✔ Mês <b>fechado</b>${ci&&ci.at?` em ${ci.at}`:""}${ci&&ci.by?` por ${esc(ci.by)}`:""}. Os lançamentos de ${MF[m]} estão travados.</div>
+       <div class="toolbar"><button class="btn sec" onclick="reopenMonth(${m})">🔓 Reabrir mês</button>
+         <button class="btn" onclick="reportMonth(${m})">📄 Relatório (PDF)</button>
+         <button class="btn sec" onclick="emailMonth(${m})">✉️ Enviar por e-mail</button></div>`
+    : `<p class="muted" style="margin-top:-4px">Fechar <b>trava</b> os lançamentos de ${MF[m]} e gera o relatório consolidado (custos, receitas, aportes/retiradas e resultado líquido). Dá pra reabrir depois pra editar.</p>
+       <div class="toolbar"><button class="btn" onclick="closeMonth(${m})">🔒 Fechar ${MF[m]}</button>
+         <button class="btn sec" onclick="reportMonth(${m})">📄 Relatório (PDF)</button>
+         <button class="btn sec" onclick="emailMonth(${m})">✉️ Enviar por e-mail</button></div>`}
+  </div>
   ${accountsPanel()}`;
+}
+function closeMonth(m){
+  if(!confirm(`Fechar ${MF[m]}/${S.settings.year}? Os lançamentos do mês ficam travados (dá pra reabrir depois).`))return;
+  S.closures[closureKey(m)]={closed:true,at:new Date().toISOString().slice(0,10),by:(currentUser&&currentUser.name)||"—"};
+  save(); reportMonth(m);
+}
+function reopenMonth(m){
+  if(!confirm(`Reabrir ${MF[m]}/${S.settings.year} para edição?`))return;
+  S.closures[closureKey(m)]={closed:false}; save();
+}
+/* ---- relatório consolidado (PDF via print) ---- */
+function monthReportHTML(m){
+  const R=resultState(m), s=S.settings, neg=R.neg;
+  const costs=occMonth(m), revs=revOccMonth(m), st=monthStatus(m);
+  const aportRows=R.list.map(x=>`<tr><td>${esc(x.socio.name)}</td><td class="r">${fmt(x.porSocio)}</td><td>${x.feito?(neg?"Aporte feito":"Retirado"):"Pendente"}</td><td>${x.data||"—"}</td></tr>`).join("");
+  const costRows=costs.map(o=>`<tr><td>${esc(o.cost.desc)}</td><td>${o.cost.tipo}</td><td class="r">${fmt(o.value)}</td><td>${o.pago?"Pago":"A pagar"}</td></tr>`).join("")||`<tr><td colspan="4" class="mut">Sem custos no mês.</td></tr>`;
+  const revRows=revs.map(o=>`<tr><td>${esc(o.rev.desc)}</td><td>${o.rev.metodo}</td><td class="r">${fmt(o.recebido?o.value:o.base)}</td><td>${o.recebido?"Recebido":"A receber"}</td></tr>`).join("")||`<tr><td colspan="4" class="mut">Sem receitas no mês.</td></tr>`;
+  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Fechamento ${MF[m]} ${s.year} — ${esc(s.nomeFantasia)}</title>
+  <style>body{font-family:Georgia,serif;color:#2c2317;margin:32px;max-width:760px}
+  h1{font-size:20px;margin:0} h2{font-size:14px;border-bottom:2px solid #2c2317;padding-bottom:4px;margin-top:24px}
+  .hd{border-bottom:3px double #2c2317;padding-bottom:12px;margin-bottom:8px}
+  .hd .rs{font-size:12px;color:#555}.hd .cnpj{font-size:12px}
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}
+  th,td{border-bottom:1px solid #ccc;padding:5px 8px;text-align:left}td.r,th.r{text-align:right}
+  .tot td{font-weight:bold;background:#f0ebdd}.big{font-size:18px;font-weight:bold}
+  .pos{color:#4c6630}.negc{color:#9a3a23}.mut{color:#777;font-size:11px}
+  @media print{body{margin:0}}</style></head><body>
+  <div class="hd"><h1>${esc(s.nomeFantasia)}</h1>
+    <div class="rs">${esc(s.razaoSocial)}</div>
+    <div class="cnpj">CNPJ: ${esc(s.cnpj)}</div></div>
+  <p class="big">Fechamento de caixa — ${MF[m]} / ${s.year}</p>
+  <table><tr class="tot"><td>Gastos previstos</td><td class="r">${fmt(R.gastoPrev)}</td></tr>
+    <tr><td>&nbsp;&nbsp;pago no mês</td><td class="r">${fmt(st.pago)}</td></tr>
+    <tr><td>&nbsp;&nbsp;a pagar</td><td class="r">${fmt(st.apagar)}</td></tr>
+    <tr class="tot"><td>Receita prevista</td><td class="r">${fmt(R.recPrev)}</td></tr>
+    <tr><td>Receita recebida</td><td class="r">${fmt(R.recReceb)}</td></tr>
+    <tr class="tot"><td>Resultado líquido (recebido − gastos previstos)</td><td class="r big ${neg?"negc":"pos"}">${fmt(R.saldo)}</td></tr></table>
+  <p>${neg?`<b>Necessidade de aporte:</b> ${fmt(R.abs)} — ${fmt(R.porSocio)} por sócio (÷${nSoc()}).`
+          :`<b>Lucro a distribuir:</b> ${fmt(R.abs)} — ${fmt(R.porSocio)} por sócio (÷${nSoc()}).`}</p>
+  <h2>${neg?"Aportes dos sócios":"Distribuição de lucro"}</h2>
+  <table><thead><tr><th>Sócio</th><th class="r">Valor</th><th>Status</th><th>Data</th></tr></thead><tbody>${aportRows}</tbody></table>
+  <h2>Custos (saídas)</h2>
+  <table><thead><tr><th>Descrição</th><th>Tipo</th><th class="r">Valor</th><th>Status</th></tr></thead><tbody>${costRows}</tbody>
+    <tfoot><tr class="tot"><td colspan="2">Total custos</td><td class="r">${fmt(R.gastoPrev)}</td><td></td></tr></tfoot></table>
+  <h2>Receitas (entradas)</h2>
+  <table><thead><tr><th>Descrição</th><th>Forma</th><th class="r">Valor</th><th>Status</th></tr></thead><tbody>${revRows}</tbody>
+    <tfoot><tr class="tot"><td colspan="2">Total recebido</td><td class="r">${fmt(R.recReceb)}</td><td></td></tr></tfoot></table>
+  <p class="mut">Gerado pelo Guto · livro-caixa ${esc(s.nomeFantasia)}${isClosed(m)?" · mês fechado":""}.</p>
+  </body></html>`;
+}
+function reportMonth(m){
+  const w=window.open("","_blank");
+  if(!w){alert("Permita pop-ups para gerar o relatório em PDF.");return;}
+  w.document.write(monthReportHTML(m)); w.document.close();
+  setTimeout(()=>{try{w.focus();w.print();}catch(e){}},400);
+}
+/* ---- enviar fechamento por e-mail (mailto, sem backend) ---- */
+function emailMonth(m){
+  const R=resultState(m), s=S.settings, neg=R.neg;
+  const to=(s.socios||[]).map(x=>x.email).filter(Boolean).join(",");
+  if(!to) alert("Dica: cadastre o e-mail de cada sócio em Configurações para preencher o destinatário automaticamente. Abrindo um e-mail em branco para você completar.");
+  const subj=`Fechamento ${MF[m]}/${s.year} — ${s.nomeFantasia}`;
+  const L=[];
+  L.push(`${s.nomeFantasia} — Fechamento de ${MF[m]}/${s.year}`);
+  L.push(s.razaoSocial); L.push(`CNPJ: ${s.cnpj}`); L.push("");
+  L.push(`Gastos previstos: ${fmt(R.gastoPrev)} (pago ${fmt(R.gastoPago)})`);
+  L.push(`Receita recebida: ${fmt(R.recReceb)} (prevista ${fmt(R.recPrev)})`);
+  L.push(`Resultado líquido: ${fmt(R.saldo)}`);
+  L.push(neg?`Necessidade de aporte por sócio: ${fmt(R.porSocio)} (÷${nSoc()})`:`Lucro por sócio: ${fmt(R.porSocio)} (÷${nSoc()})`);
+  L.push("");
+  L.push(neg?"Aportes:":"Distribuição de lucro:");
+  R.list.forEach(x=>L.push(` - ${x.socio.name}: ${fmt(x.porSocio)} [${x.feito?(neg?"aporte feito":"retirado"):"pendente"}${x.data?", "+x.data:""}]`));
+  L.push(""); L.push("Relatório completo em PDF: gere pelo botão 'Relatório (PDF)' no Guto e anexe a este e-mail.");
+  const href=`mailto:${to}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(L.join("\n"))}`;
+  window.location.href=href;
 }
 function setAporte(sid,v){const k=sid+"|"+curMonth;S.aportes[k]=Object.assign({feito:false,data:""},S.aportes[k],{feito:v});if(v&&!S.aportes[k].data)S.aportes[k].data=new Date().toISOString().slice(0,10);save();}
 function setAporteData(sid,v){const k=sid+"|"+curMonth;S.aportes[k]=Object.assign({feito:false,data:""},S.aportes[k],{data:v});save();}
@@ -737,7 +839,15 @@ function setAporteData(sid,v){const k=sid+"|"+curMonth;S.aportes[k]=Object.assig
 /* ---- contas / instituições ---- */
 function accountsPanel(){
   const tot=S.accounts.reduce((s,a)=>s+(Number(a.saldo)||0),0);
-  return `<div class="panel"><h3>🏦 Contas & Instituições <span class="pill">saldo total ${fmt(tot)}</span></h3>
+  const s=S.settings;
+  return `<div class="panel"><h3>🏢 Dados da empresa</h3>
+  <table><tbody>
+    <tr><th style="width:160px">Nome Fantasia</th><td>${esc(s.nomeFantasia)||"—"}</td></tr>
+    <tr><th>Razão Social</th><td>${esc(s.razaoSocial)||"—"}</td></tr>
+    <tr><th>CNPJ</th><td>${esc(s.cnpj)||"—"}</td></tr>
+  </tbody></table>
+  <p class="muted" style="margin-top:8px">Edite estes dados em <b>Configurações</b>.</p></div>
+  <div class="panel"><h3>🏦 Contas & Instituições <span class="pill">saldo total ${fmt(tot)}</span></h3>
   <div class="toolbar"><button class="btn sm" onclick="editAcc()">+ Nova conta</button>
     <span class="muted">Bancos e instituições da empresa. Saldo editável à mão — pronto pra integrar com o banco depois.</span></div>
   ${S.accounts.length?`<div style="overflow:auto"><table><thead><tr><th>Instituição</th><th>Tipo</th><th class="r">Saldo atual</th><th>Obs.</th><th></th></tr></thead><tbody>
@@ -811,14 +921,20 @@ function drawCont(){
 /* ============ CONFIG ============ */
 function vCfg(){
   const s=S.settings;
-  return `<div class="panel"><h3>Empresa & sócios</h3>
+  return `<div class="panel"><h3>Dados da empresa</h3>
   <div class="formgrid">
-    <label class="fld"><span>Nome</span><input class="in" value="${esc(s.org)}" onchange="S.settings.org=this.value;save()"></label>
+    <label class="fld"><span>Nome Fantasia</span><input class="in" value="${esc(s.nomeFantasia)}" onchange="S.settings.nomeFantasia=this.value;save()"></label>
+    <label class="fld"><span>CNPJ</span><input class="in" value="${esc(s.cnpj)}" onchange="S.settings.cnpj=this.value;save()"></label>
+    <label class="fld" style="grid-column:1/3"><span>Razão Social</span><input class="in" value="${esc(s.razaoSocial)}" onchange="S.settings.razaoSocial=this.value;save()"></label>
+    <label class="fld"><span>Apelido interno</span><input class="in" value="${esc(s.org)}" onchange="S.settings.org=this.value;save()"></label>
     <label class="fld"><span>Ano de referência</span><input class="in" type="number" value="${s.year}" onchange="S.settings.year=+this.value;document.getElementById('topYear').textContent=this.value;save()"></label>
     <label class="fld"><span>Dia padrão de vencimento (mensal)</span><input class="in" type="number" value="${s.defaultDay}" onchange="S.settings.defaultDay=+this.value;save()"></label>
   </div>
   <h3 style="margin-top:14px">Sócios (${s.socios.length}) — a divisão é ÷${s.socios.length}</h3>
-  <table><tbody>${s.socios.map((x,i)=>`<tr><td><input class="in" value="${esc(x.name)}" onchange="S.settings.socios[${i}].name=this.value;save()"></td>
+  <p class="muted" style="margin-top:-6px">O e-mail é usado no botão "Enviar por e-mail" do fechamento.</p>
+  <table><thead><tr><th>Nome</th><th>E-mail</th><th></th></tr></thead><tbody>${s.socios.map((x,i)=>`<tr>
+    <td><input class="in" value="${esc(x.name)}" onchange="S.settings.socios[${i}].name=this.value;save()"></td>
+    <td><input class="in" type="email" placeholder="socio@empresa.com" value="${esc(x.email||"")}" onchange="S.settings.socios[${i}].email=this.value;save()"></td>
     <td style="width:60px"><button class="btn danger sm" onclick="delSocio('${x.id}')">remover</button></td></tr>`).join("")}</tbody></table>
   <button class="btn sec sm" style="margin-top:10px" onclick="addSocio()">+ Adicionar sócio</button></div>
   <div class="panel"><h3>Dados & nuvem</h3>
@@ -827,7 +943,7 @@ function vCfg(){
    <label class="btn sec" style="display:inline-block"><input type="file" accept=".json" style="display:none" onchange="importJSON(this.files[0])">⬆️ Restaurar backup</label>
   </div>`;
 }
-function addSocio(){S.settings.socios.push({id:uid(),name:"Novo sócio"});save();}
+function addSocio(){S.settings.socios.push({id:uid(),name:"Novo sócio",email:""});save();}
 function delSocio(id){if(S.settings.socios.length<=1)return;if(!confirm("Remover sócio?"))return;S.settings.socios=S.settings.socios.filter(x=>x.id!==id);save();}
 
 /* ============ EXPORT / IMPORT ============ */
