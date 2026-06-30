@@ -9,15 +9,18 @@ sem build. Login + dados compartilhados via **Supabase**.
 - `README.md` — passos de publicação.
 
 ## O que o app faz
-- **Cadastro** central de custos (cadastra uma vez).
-- **Extratos** mensais gerados automaticamente do cadastro:
+- **Cadastro** central, com toggle **Custos | Receitas** (cadastra uma vez):
+  - Custo: periodicidade Mensal/Anual/Esporádico, Fixo/Variável, parcelas, método, "cadastrado por".
+  - Receita (modelo enxuto): descrição, valor previsto, Mensal (mesIni→mesFim) ou Pontual, forma de recebimento.
+- **Extratos · Entradas e Saídas** mensais gerados automaticamente do cadastro:
   - Mensal: repete do "mês início" ao "mês fim" (ou Indeterminado = até Dez); datas iguais (dia padrão do Config).
   - Esporádico/Anual: cai no mês de referência; se **Parcelado**, espalha **1 parcela por mês** (1/3, 2/3, 3/3).
   - Variável: valor é prévia; pode-se lançar o **valor real** por ocorrência.
-- **Dashboard**: mês atual (auto), total, por sócio (÷ nº de sócios), pago/a pagar, acumulado do ano, gráficos.
-- **Aportes**: cada sócio vê quanto deve aportar no mês, marca data + "aporte feito" → consolida no dashboard.
-- **Contábil/Anual**: resumo mensal, por categoria, fixo×variável, export CSV/JSON/PDF.
-- Estado salvo: nuvem (Supabase, tabela `app_state`, linha `guto-graycat`) ou localStorage se as chaves estiverem vazias.
+  - Saídas (custos) com tick **Pago?**; Entradas (receitas) com tick **Recebido?** + valor recebido real.
+- **Dashboard**: mês atual (auto), custo, receita recebida, saldo do mês, pago/a pagar, acumulado, gráfico Custo×Receita + categoria, painel de fechamento.
+- **Resultado & Fechamento** (substituiu "Aportes"): para o mês, mostra gastos previstos, receita recebida e o **saldo de fechamento = receita recebida − gastos previstos** (base "necessidade do mês"). Saldo **negativo** → aporte por sócio (÷ nº sócios); **positivo** → distribuição de lucro por sócio. Cada sócio marca o próprio aporte/retirada + data. Inclui painel **Contas & Instituições** (banco, tipo, saldo manual editável — pronto pra integração com o Inter depois).
+- **Contábil/Anual**: resumo mensal (custo/receita/pago/saldo/sócio), resultado do ano, por categoria, fixo×variável, export CSV (entradas+saídas)/JSON/PDF.
+- Estado salvo: nuvem (Supabase, tabela `app_state`, linha `guto-graycat`) ou localStorage se as chaves estiverem vazias. `migrate()` garante os campos `revenues`/`receipts`/`accounts` em estados salvos antes desta versão.
 
 ## Supabase (já configurado no index.html)
 - `SUPABASE_URL = https://hzznxohbrwhgxuzvkwmr.supabase.co`

@@ -107,6 +107,12 @@ select.in option{background:#fbf7ec}
 .modal h2{margin:0 0 16px;font-family:var(--disp);color:var(--head);font-size:20px;letter-spacing:.3px}
 .chk{width:18px;height:18px;cursor:pointer;accent-color:var(--cyan)}
 .muted{color:var(--muted)}
+/* segmented toggle (Custos / Receitas) */
+.seg{display:inline-flex;border:1.5px solid var(--ink);border-radius:2px;overflow:hidden;box-shadow:2px 2px 0 rgba(44,35,23,.4)}
+.segb{background:var(--bg2);border:0;padding:8px 18px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.3px;color:var(--ink)}
+.segb.on{background:var(--cyan);color:#fbf7ec}
+.segb+.segb{border-left:1.5px solid var(--ink)}
+.in-up{color:var(--green);font-weight:700} .in-dn{color:var(--red);font-weight:700}
 /* ===== LOGIN ===== */
 .center{position:relative;display:flex;align-items:center;justify-content:center;min-height:100vh;overflow:hidden;background:#e7dcc4}
 #matrix{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.16}
@@ -167,7 +173,7 @@ select.in option{background:#fbf7ec}
       <a data-v="dash" class="active">📊 <span>Dashboard</span></a>
       <a data-v="cad">🗂️ <span>Cadastro</span></a>
       <a data-v="ext">📑 <span>Extratos</span></a>
-      <a data-v="ap">💰 <span>Aportes</span></a>
+      <a data-v="res">💰 <span>Resultado</span></a>
       <a data-v="cont">📘 <span>Contábil / Anual</span></a>
       <a data-v="cfg">⚙️ <span>Configurações</span></a>
     </nav>
@@ -202,6 +208,8 @@ const MA=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez
 const MF=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 const TIPOS=["Infra","Mkt","adm","impostos","contabil","trafego pago Meta","trafego pago tik tok"];
 const METODOS=["Pix","Saldo","Cartão de crédito","Aporte Sócio"];
+const RMETODOS=["Pix","Transferência","Dinheiro","Cartão","Boleto"];
+const ATIPOS=["Conta corrente","Poupança","Cartão de crédito","Carteira Pix","Investimento","Dinheiro"];
 const fmt=n=>"R$ "+(Number(n)||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 let S=null;            // estado
@@ -222,12 +230,22 @@ function seed(){
       c("TFF Prefeitura (alvará)","impostos","Anual","Fixo",1456,"Jun","","À vista",0,10,"Pix","Taxa anual. Conferir mês real."),
     ],
     payments:{},  // "costId|m": {pago:bool, valorReal:num|null}
-    aportes:{}    // "socioId|m": {feito:bool, data:"YYYY-MM-DD"}
+    aportes:{},   // "socioId|m": {feito:bool, data:"YYYY-MM-DD"}  (aporte OU retirada de lucro)
+    revenues:[],  // receitas previstas/recorrentes
+    receipts:{},  // "revId|m": {recebido:bool, valorReal:num|null}
+    accounts:[]   // contas/instituições (instituição, tipo, saldo manual)
   };
 }
 function c(desc,tipo,per,classe,valor,ini,fim,pag,q,dia,met,obs,by){
   return {id:uid(),desc,tipo,periodicidade:per,classe,valor:Number(valor),mesIni:ini,mesFim:fim,
     pagamento:pag,qtde:Number(q)||0,dia:Number(dia)||0,metodo:met,obs:obs||"",by:by||"",at:""};
+}
+function r(desc,per,valor,ini,fim,dia,met,obs,by){ // receita
+  return {id:uid(),desc,periodicidade:per,valor:Number(valor),mesIni:ini,mesFim:fim,
+    dia:Number(dia)||0,metodo:met,obs:obs||"",by:by||"",at:""};
+}
+function acc(inst,tipo,saldo,obs){ // conta/instituição
+  return {id:uid(),inst,tipo,saldo:Number(saldo)||0,obs:obs||""};
 }
 
 /* ============ LÓGICA ============ */
@@ -261,16 +279,50 @@ const monthTotal=m=>occMonth(m).reduce((s,o)=>s+o.value,0);
 const nSoc=()=>S.settings.socios.length||1;
 const perSocio=m=>monthTotal(m)/nSoc();
 function monthStatus(m){let pago=0,apagar=0;for(const o of occMonth(m)){o.pago?pago+=o.value:apagar+=o.value;}return{pago,apagar};}
-function aporteState(m){
-  const share=perSocio(m); let feito=0;
+const yearTotal=()=>{let t=0;for(let m=0;m<12;m++)t+=monthTotal(m);return t;};
+
+/* ---- receitas ---- */
+function revOccMonth(m){ // ocorrências de receita do mês m (0-11)
+  const out=[];
+  for(const k of S.revenues){
+    const mi=MA.indexOf(k.mesIni); if(mi<0) continue;
+    let appear=false, base=0;
+    if(k.periodicidade==="Mensal"){
+      const mf=k.mesFim==="Indeterminado"?11:(MA.indexOf(k.mesFim)>=0?MA.indexOf(k.mesFim):mi);
+      if(m>=mi && m<=mf){appear=true; base=k.valor;}
+    } else { // Pontual
+      if(m===mi){appear=true; base=k.valor;}
+    }
+    if(!appear) continue;
+    const rkey=k.id+"|"+m, rc=S.receipts[rkey]||{};
+    const hasReal=rc.valorReal!=null && rc.valorReal!=="";
+    const value=hasReal?Number(rc.valorReal):base;
+    out.push({rev:k, key:rkey, value, base, recebido:!!rc.recebido,
+      preview:!rc.recebido && !hasReal, valorReal:hasReal?Number(rc.valorReal):null});
+  }
+  return out;
+}
+const revMonthTotal=m=>revOccMonth(m).reduce((s,o)=>s+o.base,0);            // previsto
+const revReceived=m=>revOccMonth(m).reduce((s,o)=>s+(o.recebido?o.value:0),0); // efetivo
+const revYearTotal=()=>{let t=0;for(let m=0;m<12;m++)t+=revMonthTotal(m);return t;};
+const revYearReceived=()=>{let t=0;for(let m=0;m<12;m++)t+=revReceived(m);return t;};
+
+/* ---- fechamento do mês (base: necessidade do mês) ---- */
+function resultState(m){
+  const gastoPrev=monthTotal(m), gastoPago=monthStatus(m).pago;
+  const recPrev=revMonthTotal(m), recReceb=revReceived(m);
+  const saldo=recReceb-gastoPrev;          // receita recebida − custos previstos
+  const n=nSoc(), porSocio=Math.abs(saldo)/n;
+  const neg=saldo<0;
+  let feito=0;
   const list=S.settings.socios.map(s=>{
     const a=S.aportes[s.id+"|"+m]||{};
-    if(a.feito)feito+=share;
-    return {socio:s, share, feito:!!a.feito, data:a.data||""};
+    if(a.feito)feito+=porSocio;
+    return {socio:s, porSocio, feito:!!a.feito, data:a.data||""};
   });
-  return {share, needed:monthTotal(m), aportado:feito, pendente:monthTotal(m)-feito, list};
+  return {gastoPrev,gastoPago,recPrev,recReceb,saldo,neg,porSocio,
+    abs:Math.abs(saldo),list,feito,pendente:Math.abs(saldo)-feito};
 }
-const yearTotal=()=>{let t=0;for(let m=0;m<12;m++)t+=monthTotal(m);return t;};
 
 /* ============ PERSISTÊNCIA ============ */
 const LS="guto_state_v1";
@@ -280,11 +332,21 @@ async function loadState(){
     if(error){console.warn(error);}
     const valid = data && data.data && data.data.settings && Array.isArray(data.data.costs);
     S = valid ? data.data : seed();
+    migrate();
     if(!valid){ await sb.from("app_state").upsert({id:ORG_ID,data:S,updated_at:new Date().toISOString()}); }
   } else {
     const raw=localStorage.getItem(LS);
     S = raw? JSON.parse(raw): seed();
+    migrate();
   }
+}
+function migrate(){ // garante campos novos em estados salvos antes desta versão
+  if(!S) return;
+  if(!Array.isArray(S.revenues)) S.revenues=[];
+  if(!S.receipts || typeof S.receipts!=="object") S.receipts={};
+  if(!Array.isArray(S.accounts)) S.accounts=[];
+  if(!S.payments) S.payments={};
+  if(!S.aportes) S.aportes={};
 }
 let saveT=null;
 function save(){
@@ -358,12 +420,13 @@ async function logout(){
 
 /* ============ NAVEGAÇÃO ============ */
 let view="dash";
+let cadTab="custo"; // "custo" | "receita"
 document.getElementById("nav").addEventListener("click",e=>{
   const a=e.target.closest("a"); if(!a)return;
   document.querySelectorAll("#nav a").forEach(x=>x.classList.remove("active"));
   a.classList.add("active"); view=a.dataset.v; render();
 });
-const TITLES={dash:"Dashboard",cad:"Cadastro de Custos",ext:"Extratos",ap:"Aportes dos Sócios",cont:"Contábil / Anual",cfg:"Configurações"};
+const TITLES={dash:"Dashboard",cad:"Cadastro",ext:"Extratos · Entradas e Saídas",res:"Resultado & Fechamento",cont:"Contábil / Anual",cfg:"Configurações"};
 let charts=[];
 function render(){
   document.getElementById("viewTitle").textContent=TITLES[view];
@@ -372,7 +435,7 @@ function render(){
   if(view==="dash")v.innerHTML=vDash();
   if(view==="cad")v.innerHTML=vCad();
   if(view==="ext")v.innerHTML=vExt();
-  if(view==="ap")v.innerHTML=vAp();
+  if(view==="res")v.innerHTML=vRes();
   if(view==="cont")v.innerHTML=vCont();
   if(view==="cfg")v.innerHTML=vCfg();
   if(view==="dash")drawDash();
@@ -381,7 +444,7 @@ function render(){
 
 /* ============ DASHBOARD ============ */
 function vDash(){
-  const m=curMonth, st=monthStatus(m), ap=aporteState(m);
+  const m=curMonth, st=monthStatus(m), R=resultState(m), neg=R.neg;
   const cats=TIPOS.map(t=>({t,v:occMonth(m).filter(o=>o.cost.tipo===t).reduce((s,o)=>s+o.value,0)})).filter(x=>x.v>0);
   return `
   <div class="toolbar">
@@ -389,29 +452,33 @@ function vDash(){
     <span class="sp"></span>
   </div>
   <div class="cards">
-    <div class="card"><div class="lbl">Total do mês</div><div class="val">${fmt(monthTotal(m))}</div><div class="sub">${occMonth(m).length} lançamentos</div></div>
-    <div class="card"><div class="lbl">Por sócio (÷${nSoc()})</div><div class="val">${fmt(perSocio(m))}</div><div class="sub">cota de cada um</div></div>
+    <div class="card"><div class="lbl">Custo do mês</div><div class="val">${fmt(monthTotal(m))}</div><div class="sub">${occMonth(m).length} lançamentos</div></div>
+    <div class="card green"><div class="lbl">Receita recebida</div><div class="val">${fmt(R.recReceb)}</div><div class="sub">prevista ${fmt(R.recPrev)}</div></div>
+    <div class="card ${neg?"red":"green"}"><div class="lbl">Saldo do mês</div><div class="val">${fmt(R.saldo)}</div><div class="sub">${neg?"aporte":"lucro"} ${fmt(R.porSocio)}/sócio</div></div>
     <div class="card green"><div class="lbl">Pago</div><div class="val">${fmt(st.pago)}</div></div>
     <div class="card red"><div class="lbl">A pagar</div><div class="val">${fmt(st.apagar)}</div></div>
-    <div class="card amber"><div class="lbl">Acumulado no ano</div><div class="val">${fmt(yearTotal())}</div></div>
+    <div class="card amber"><div class="lbl">Custo acumulado no ano</div><div class="val">${fmt(yearTotal())}</div></div>
   </div>
   <div class="grid2">
-    <div class="panel"><h3>Custo por mês (${S.settings.year})</h3><canvas id="cMonth" height="170"></canvas></div>
-    <div class="panel"><h3>Por categoria — ${MF[m]}</h3>${cats.length?`<canvas id="cCat" height="170"></canvas>`:`<p class="muted">Sem lançamentos neste mês.</p>`}</div>
+    <div class="panel"><h3>Custo × Receita por mês (${S.settings.year})</h3><canvas id="cMonth" height="170"></canvas></div>
+    <div class="panel"><h3>Custo por categoria — ${MF[m]}</h3>${cats.length?`<canvas id="cCat" height="170"></canvas>`:`<p class="muted">Sem lançamentos neste mês.</p>`}</div>
   </div>
   <div class="panel">
-    <h3>💰 Aportes — ${MF[m]} <span class="pill">cota ${fmt(ap.share)}/sócio</span></h3>
-    <table><thead><tr><th>Sócio</th><th class="r">Deve aportar</th><th>Status</th><th>Data</th></tr></thead><tbody>
-    ${ap.list.map(x=>`<tr><td>${x.socio.name}</td><td class="r">${fmt(x.share)}</td>
-      <td>${x.feito?'<span class="tag pago">aporte feito</span>':'<span class="tag apagar">pendente</span>'}</td>
+    <h3>${neg?"💸 Fechamento — aportes":"🎉 Fechamento — lucro"} · ${MF[m]} <span class="pill">${neg?"aporte":"lucro"} ${fmt(R.porSocio)}/sócio</span></h3>
+    <table><thead><tr><th>Sócio</th><th class="r">${neg?"Deve aportar":"A receber"}</th><th>Status</th><th>Data</th></tr></thead><tbody>
+    ${R.list.map(x=>`<tr><td>${x.socio.name}</td><td class="r">${fmt(x.porSocio)}</td>
+      <td>${x.feito?`<span class="tag pago">${neg?"aporte feito":"retirado"}</span>`:'<span class="tag apagar">pendente</span>'}</td>
       <td class="muted">${x.data||"—"}</td></tr>`).join("")}
-    </tbody><tfoot><tr><th>Total</th><th class="r">${fmt(ap.needed)}</th>
-      <th colspan="2">Aportado ${fmt(ap.aportado)} · Pendente ${fmt(ap.pendente)}</th></tr></tfoot></table>
+    </tbody><tfoot><tr><th>Saldo</th><th class="r">${fmt(R.saldo)}</th>
+      <th colspan="2">${neg?"Aportado":"Retirado"} ${fmt(R.feito)} · Pendente ${fmt(R.pendente)}</th></tr></tfoot></table>
   </div>`;
 }
 function drawDash(){
   const mc=document.getElementById("cMonth");
-  if(mc)charts.push(new Chart(mc,{type:"bar",data:{labels:MA,datasets:[{data:MA.map((_,i)=>monthTotal(i)),backgroundColor:"rgba(47,110,106,.6)",hoverBackgroundColor:"#2f6e6a",borderColor:"#2c2317",borderWidth:1.5,borderRadius:0}]},options:co()}));
+  if(mc)charts.push(new Chart(mc,{type:"bar",data:{labels:MA,datasets:[
+    {label:"Custo",data:MA.map((_,i)=>monthTotal(i)),backgroundColor:"rgba(181,67,42,.55)",hoverBackgroundColor:"#b5432a",borderColor:"#2c2317",borderWidth:1.5,borderRadius:0},
+    {label:"Receita recebida",data:MA.map((_,i)=>revReceived(i)),backgroundColor:"rgba(95,125,58,.6)",hoverBackgroundColor:"#5f7d3a",borderColor:"#2c2317",borderWidth:1.5,borderRadius:0}
+  ]},options:{plugins:{legend:{display:true,position:"bottom"}},scales:{y:{ticks:{callback:v=>"R$ "+v}}}}}));
   const m=curMonth, cats=TIPOS.map(t=>occMonth(m).filter(o=>o.cost.tipo===t).reduce((s,o)=>s+o.value,0));
   const cc=document.getElementById("cCat");
   if(cc){const lab=[],dat=[];TIPOS.forEach((t,i)=>{if(cats[i]>0){lab.push(t);dat.push(cats[i]);}});
@@ -421,9 +488,23 @@ const co=()=>({plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>"R
 
 /* ============ CADASTRO ============ */
 function vCad(){
-  return `<div class="toolbar"><button class="btn" onclick="editCost()">+ Novo custo</button>
-    <span class="muted">Cadastre uma vez — os extratos e o dashboard se atualizam sozinhos.</span><span class="sp"></span></div>
-  <div class="panel" style="padding:0;overflow:auto">
+  const isCusto=cadTab==="custo";
+  return `<div class="toolbar">
+    <div class="seg">
+      <button class="segb ${isCusto?"on":""}" onclick="cadTab='custo';render()">Custos</button>
+      <button class="segb ${!isCusto?"on":""}" onclick="cadTab='receita';render()">Receitas</button>
+    </div>
+    <span class="sp"></span>
+    ${isCusto?`<button class="btn" onclick="editCost()">+ Novo custo</button>`
+              :`<button class="btn" onclick="editRev()">+ Nova receita</button>`}
+  </div>
+  <span class="muted" style="display:block;margin:-6px 0 14px">${isCusto
+    ?"Cadastre uma vez — os extratos, o dashboard e o fechamento se atualizam sozinhos."
+    :"Receitas previstas/recorrentes — marque o recebimento de cada mês nos Extratos."}</span>
+  ${isCusto?cadCostTable():cadRevTable()}`;
+}
+function cadCostTable(){
+  return `<div class="panel" style="padding:0;overflow:auto">
   <table><thead><tr><th>Descrição</th><th>Tipo</th><th>Period.</th><th>Classe</th><th class="r">Valor</th><th>Período/Ref.</th><th>Pgto</th><th>Método</th><th>Cadastrado por</th><th></th></tr></thead><tbody>
   ${S.costs.map(k=>`<tr>
     <td><b>${esc(k.desc)}</b>${k.obs?`<br><span class="muted" style="font-size:11px">${esc(k.obs)}</span>`:""}</td>
@@ -502,6 +583,69 @@ function saveCost(id,isNew){
 function delCost(id){ if(!confirm("Excluir este custo?"))return; S.costs=S.costs.filter(x=>x.id!==id);
   Object.keys(S.payments).forEach(k=>{if(k.startsWith(id+"|"))delete S.payments[k];}); save(); }
 
+/* ---- receitas (cadastro) ---- */
+function cadRevTable(){
+  if(!S.revenues.length) return `<div class="panel"><p class="muted" style="text-align:center;padding:22px">Nenhuma receita cadastrada. Clique em <b>+ Nova receita</b>.</p></div>`;
+  return `<div class="panel" style="padding:0;overflow:auto">
+  <table><thead><tr><th>Descrição</th><th>Period.</th><th class="r">Valor previsto</th><th>Período/Ref.</th><th>Recebimento</th><th>Cadastrado por</th><th></th></tr></thead><tbody>
+  ${S.revenues.map(k=>`<tr>
+    <td><b>${esc(k.desc)}</b>${k.obs?`<br><span class="muted" style="font-size:11px">${esc(k.obs)}</span>`:""}</td>
+    <td>${k.periodicidade}</td>
+    <td class="r in-up">${fmt(k.valor)}</td>
+    <td>${k.periodicidade==="Mensal"?`${k.mesIni} → ${k.mesFim||"?"}`:k.mesIni}</td>
+    <td>${k.metodo}</td>
+    <td>${k.by?`<span class="pill">${esc(k.by)}</span>${k.at?`<br><span class="muted" style="font-size:11px">${k.at}</span>`:""}`:'<span class="muted">—</span>'}</td>
+    <td style="white-space:nowrap"><button class="btn sec sm" onclick="editRev('${k.id}')">editar</button>
+      <button class="btn danger sm" onclick="delRev('${k.id}')">excluir</button></td></tr>`).join("")}
+  </tbody></table></div>`;
+}
+function editRev(id){
+  const k=id?S.revenues.find(x=>x.id===id):r("","Mensal",0,"Jun","Indeterminado",5,"Pix","");
+  const isNew=!id;
+  const opt=(arr,sel)=>arr.map(o=>`<option ${o===sel?"selected":""}>${o}</option>`).join("");
+  showModal(`<h2>${isNew?"Nova receita":"Editar receita"}</h2>
+  <div class="formgrid">
+    <label class="fld" style="grid-column:1/3"><span>Descrição</span><input id="r_desc" class="in" value="${esc(k.desc)}" placeholder="ex.: Mensalidade cliente X"></label>
+    <label class="fld"><span>Valor previsto (R$)</span><input id="r_val" class="in" type="number" step="0.01" value="${k.valor}"></label>
+    <label class="fld"><span>Periodicidade</span><select id="r_per" class="in" onchange="condRev()">${opt(["Mensal","Pontual"],k.periodicidade)}</select></label>
+    <label class="fld"><span id="r_lblIni">Mês início / referência</span><select id="r_ini" class="in">${opt(MA,k.mesIni)}</select></label>
+    <label class="fld" id="r_wrapFim"><span>Mês fim (Mensal)</span><select id="r_fim" class="in">${opt(["Indeterminado",...MA],k.mesFim||"Indeterminado")}</select></label>
+    <label class="fld"><span>Dia previsto de recebimento</span><input id="r_dia" class="in" type="number" min="1" max="28" value="${k.dia||5}"></label>
+    <label class="fld"><span>Forma de recebimento</span><select id="r_met" class="in">${opt(RMETODOS,k.metodo)}</select></label>
+    <label class="fld" style="grid-column:1/3"><span>Observações</span><textarea id="r_obs" class="in" rows="2">${esc(k.obs)}</textarea></label>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+    <button class="btn sec" onclick="closeModal()">Cancelar</button>
+    <button class="btn" onclick="saveRev('${k.id}',${isNew})">Salvar</button></div>`);
+  condRev();
+}
+function condRev(){
+  const mensal=document.getElementById("r_per").value==="Mensal";
+  document.getElementById("r_wrapFim").style.opacity=mensal?1:.4;
+  document.getElementById("r_fim").disabled=!mensal;
+  document.getElementById("r_lblIni").textContent=mensal?"Mês de início":"Mês de referência";
+}
+function saveRev(id,isNew){
+  const g=x=>document.getElementById(x).value;
+  const per=g("r_per");
+  const obj={id, desc:g("r_desc").trim(), periodicidade:per, valor:Number(g("r_val"))||0,
+    mesIni:g("r_ini"), mesFim: per==="Mensal"? g("r_fim"):"",
+    dia:Number(g("r_dia"))||5, metodo:g("r_met"), obs:g("r_obs").trim()};
+  if(!obj.desc){alert("Informe a descrição.");return;}
+  if(isNew){
+    obj.by=(currentUser&&currentUser.name)||"—";
+    obj.at=new Date().toISOString().slice(0,10);
+    S.revenues.push(obj);
+  } else {
+    const old=S.revenues.find(x=>x.id===id)||{};
+    obj.by=old.by||""; obj.at=old.at||"";
+    const i=S.revenues.findIndex(x=>x.id===id); S.revenues[i]=obj;
+  }
+  closeModal(); save();
+}
+function delRev(id){ if(!confirm("Excluir esta receita?"))return; S.revenues=S.revenues.filter(x=>x.id!==id);
+  Object.keys(S.receipts).forEach(k=>{if(k.startsWith(id+"|"))delete S.receipts[k];}); save(); }
+
 /* ============ EXTRATOS ============ */
 let fCat="",fMet="",fSt="",fQ="";
 function vExt(){
@@ -518,8 +662,9 @@ function vExt(){
     <select class="in" style="width:auto" onchange="fCat=this.value;render()"><option value="">Categoria: todas</option>${sel(TIPOS,fCat)}</select>
     <select class="in" style="width:auto" onchange="fMet=this.value;render()"><option value="">Método: todos</option>${sel(METODOS,fMet)}</select>
     <select class="in" style="width:auto" onchange="fSt=this.value;render()"><option value="">Status: todos</option><option ${fSt==="Pago"?"selected":""}>Pago</option><option ${fSt==="A pagar"?"selected":""}>A pagar</option></select>
-    <span class="sp"></span><b>Total: ${fmt(tot)}</b></div>
-  <div class="panel" style="padding:0;overflow:auto">
+    <span class="sp"></span><b>Saídas: ${fmt(tot)}</b></div>
+  <div class="panel"><h3>↓ Saídas (custos) — ${MF[m]} <span class="pill">total ${fmt(tot)}</span></h3>
+  <div style="overflow:auto">
   <table><thead><tr><th>Venc.</th><th>Descrição</th><th>Tipo</th><th>Classe</th><th class="r">Valor</th><th>Parc.</th><th>Método</th><th>Valor real</th><th>Pago?</th></tr></thead><tbody>
   ${occ.length?occ.map(o=>{
     const dia=String(o.cost.dia||5).padStart(2,"0");
@@ -532,57 +677,122 @@ function vExt(){
     <td>${o.cost.classe==="Variável"?`<input class="in" style="width:110px;padding:5px" type="number" step="0.01" placeholder="real" value="${o.valorReal??""}" onchange="setReal('${o.key}',this.value)">`:'<span class="muted">—</span>'}</td>
     <td><input type="checkbox" class="chk" ${o.pago?"checked":""} onchange="setPago('${o.key}',this.checked)"></td></tr>`;}).join("")
     :`<tr><td colspan="9" class="muted" style="padding:24px;text-align:center">Nenhum lançamento com esses filtros.</td></tr>`}
-  </tbody></table></div>`;
+  </tbody></table></div></div>
+  ${vExtEntradas(m)}`;
+}
+function vExtEntradas(m){
+  const rocc=revOccMonth(m);
+  return `<div class="panel"><h3>↑ Entradas (receitas) — ${MF[m]} <span class="pill">recebido ${fmt(revReceived(m))} / previsto ${fmt(revMonthTotal(m))}</span></h3>
+  <div style="overflow:auto">
+  <table><thead><tr><th>Receb.</th><th>Descrição</th><th class="r">Previsto</th><th>Forma</th><th>Valor recebido</th><th>Recebido?</th></tr></thead><tbody>
+  ${rocc.length?rocc.map(o=>{
+    const dia=String(o.rev.dia||5).padStart(2,"0");
+    return `<tr>
+    <td>${dia}/${String(m+1).padStart(2,"0")}</td>
+    <td><b>${esc(o.rev.desc)}</b></td>
+    <td class="r in-up">${fmt(o.base)}</td>
+    <td>${o.rev.metodo}</td>
+    <td><input class="in" style="width:120px;padding:5px" type="number" step="0.01" placeholder="real" value="${o.valorReal??""}" onchange="setRevReal('${o.key}',this.value)"></td>
+    <td><input type="checkbox" class="chk" ${o.recebido?"checked":""} onchange="setReceb('${o.key}',this.checked)"></td></tr>`;}).join("")
+    :`<tr><td colspan="6" class="muted" style="padding:24px;text-align:center">Nenhuma receita prevista neste mês. Cadastre em <b>Cadastro → Receitas</b>.</td></tr>`}
+  </tbody></table></div></div>`;
 }
 function setPago(key,v){ S.payments[key]=Object.assign({},S.payments[key],{pago:v}); save(); }
 function setReal(key,v){ S.payments[key]=Object.assign({},S.payments[key],{valorReal:v===""?null:Number(v)}); save(); }
+function setReceb(key,v){ S.receipts[key]=Object.assign({},S.receipts[key],{recebido:v}); save(); }
+function setRevReal(key,v){ S.receipts[key]=Object.assign({},S.receipts[key],{valorReal:v===""?null:Number(v)}); save(); }
 
-/* ============ APORTES ============ */
-function vAp(){
-  const m=curMonth, ap=aporteState(m);
-  const isAdmin=currentUser.id==="admin"||CLOUD;
+/* ============ RESULTADO / FECHAMENTO ============ */
+function vRes(){
+  const m=curMonth, R=resultState(m), neg=R.neg;
   return `<div class="toolbar">
     <select class="in" style="width:auto" onchange="curMonth=+this.value;render()">${MF.map((x,i)=>`<option value="${i}" ${i===m?"selected":""}>${x} / ${S.settings.year}</option>`).join("")}</select>
-    <span class="sp"></span><span class="pill">cota por sócio: ${fmt(ap.share)}</span></div>
+    <span class="sp"></span></div>
   <div class="cards">
-    <div class="card"><div class="lbl">Custo do mês</div><div class="val">${fmt(ap.needed)}</div></div>
-    <div class="card green"><div class="lbl">Aportado</div><div class="val">${fmt(ap.aportado)}</div></div>
-    <div class="card red"><div class="lbl">Pendente</div><div class="val">${fmt(ap.pendente)}</div></div>
+    <div class="card"><div class="lbl">Gastos previstos</div><div class="val">${fmt(R.gastoPrev)}</div><div class="sub">já pago: ${fmt(R.gastoPago)}</div></div>
+    <div class="card green"><div class="lbl">Receita recebida</div><div class="val">${fmt(R.recReceb)}</div><div class="sub">prevista: ${fmt(R.recPrev)}</div></div>
+    <div class="card ${neg?"red":"green"}"><div class="lbl">Saldo de fechamento</div><div class="val">${fmt(R.saldo)}</div><div class="sub">recebido − gastos previstos</div></div>
+    <div class="card ${neg?"red":"amber"}"><div class="lbl">${neg?"Aporte por sócio":"Lucro por sócio"} (÷${nSoc()})</div><div class="val">${fmt(R.porSocio)}</div></div>
   </div>
-  <div class="panel"><h3>Controle de aportes — ${MF[m]}</h3>
-  <table><thead><tr><th>Sócio</th><th class="r">Deve aportar</th><th>Data do aporte</th><th>Aporte feito</th></tr></thead><tbody>
-  ${ap.list.map(x=>{
-    const can = isAdmin || currentUser.id===x.socio.id;
+  <div class="panel"><h3>${neg?"💸 Fechamento — falta cobrir":"🎉 Fechamento — distribuição de lucro"} · ${MF[m]}</h3>
+  <p class="muted" style="margin-top:-4px">${neg
+    ? `O mês fecha <b>negativo em ${fmt(R.abs)}</b> — a receita recebida não cobre os gastos previstos. Cada sócio precisa <b>aportar ${fmt(R.porSocio)}</b>.`
+    : `O mês fecha <b>positivo em ${fmt(R.abs)}</b> — sobrou caixa depois dos gastos previstos. Cada sócio pode <b>retirar ${fmt(R.porSocio)}</b> de lucro.`}</p>
+  <table><thead><tr><th>Sócio</th><th class="r">${neg?"Deve aportar":"A receber"}</th><th>Data</th><th>${neg?"Aporte feito":"Retirada feita"}</th></tr></thead><tbody>
+  ${R.list.map(x=>{
+    const can = currentUser.id==="admin" || CLOUD || currentUser.id===x.socio.id;
     return `<tr><td>${x.socio.name} ${currentUser.id===x.socio.id?'<span class="pill">você</span>':""}</td>
-    <td class="r">${fmt(x.share)}</td>
+    <td class="r">${fmt(x.porSocio)}</td>
     <td><input type="date" class="in" style="width:160px;padding:5px" value="${x.data}" ${can?"":"disabled"} onchange="setAporteData('${x.socio.id}',this.value)"></td>
     <td><input type="checkbox" class="chk" ${x.feito?"checked":""} ${can?"":"disabled"} onchange="setAporte('${x.socio.id}',this.checked)">
       ${x.feito?'<span class="tag pago" style="margin-left:8px">ok</span>':'<span class="tag apagar" style="margin-left:8px">pendente</span>'}</td></tr>`;}).join("")}
-  </tbody></table>
-  <p class="muted" style="margin-top:10px">Cada sócio marca o próprio aporte (no modo nuvem). O total consolidado aparece no Dashboard da empresa.</p></div>`;
+  </tbody><tfoot><tr><th>Total</th><th class="r">${fmt(R.abs)}</th>
+    <th colspan="2">${neg?"Aportado":"Retirado"} ${fmt(R.feito)} · Pendente ${fmt(R.pendente)}</th></tr></tfoot></table>
+  <p class="muted" style="margin-top:10px">Base do cálculo: <b>necessidade do mês</b> — receita recebida menos os gastos previstos. Cada sócio marca o próprio aporte/retirada (no modo nuvem).</p></div>
+  ${accountsPanel()}`;
 }
 function setAporte(sid,v){const k=sid+"|"+curMonth;S.aportes[k]=Object.assign({feito:false,data:""},S.aportes[k],{feito:v});if(v&&!S.aportes[k].data)S.aportes[k].data=new Date().toISOString().slice(0,10);save();}
 function setAporteData(sid,v){const k=sid+"|"+curMonth;S.aportes[k]=Object.assign({feito:false,data:""},S.aportes[k],{data:v});save();}
 
+/* ---- contas / instituições ---- */
+function accountsPanel(){
+  const tot=S.accounts.reduce((s,a)=>s+(Number(a.saldo)||0),0);
+  return `<div class="panel"><h3>🏦 Contas & Instituições <span class="pill">saldo total ${fmt(tot)}</span></h3>
+  <div class="toolbar"><button class="btn sm" onclick="editAcc()">+ Nova conta</button>
+    <span class="muted">Bancos e instituições da empresa. Saldo editável à mão — pronto pra integrar com o banco depois.</span></div>
+  ${S.accounts.length?`<div style="overflow:auto"><table><thead><tr><th>Instituição</th><th>Tipo</th><th class="r">Saldo atual</th><th>Obs.</th><th></th></tr></thead><tbody>
+  ${S.accounts.map(a=>`<tr><td><b>${esc(a.inst)}</b></td><td><span class="pill">${esc(a.tipo)}</span></td>
+    <td class="r">${fmt(a.saldo)}</td><td class="muted">${esc(a.obs)||"—"}</td>
+    <td style="white-space:nowrap"><button class="btn sec sm" onclick="editAcc('${a.id}')">editar</button>
+      <button class="btn danger sm" onclick="delAcc('${a.id}')">excluir</button></td></tr>`).join("")}
+  </tbody></table></div>`:`<p class="muted" style="text-align:center;padding:14px">Nenhuma conta cadastrada ainda.</p>`}
+  </div>`;
+}
+function editAcc(id){
+  const a=id?S.accounts.find(x=>x.id===id):acc("","Conta corrente",0,"");
+  const isNew=!id;
+  const opt=(arr,sel)=>arr.map(o=>`<option ${o===sel?"selected":""}>${o}</option>`).join("");
+  showModal(`<h2>${isNew?"Nova conta":"Editar conta"}</h2>
+  <div class="formgrid">
+    <label class="fld" style="grid-column:1/3"><span>Instituição / banco</span><input id="a_inst" class="in" value="${esc(a.inst)}" placeholder="ex.: Banco Inter PJ"></label>
+    <label class="fld"><span>Tipo</span><select id="a_tipo" class="in">${opt(ATIPOS,a.tipo)}</select></label>
+    <label class="fld"><span>Saldo atual (R$)</span><input id="a_saldo" class="in" type="number" step="0.01" value="${a.saldo}"></label>
+    <label class="fld" style="grid-column:1/3"><span>Observações (agência / conta / chave Pix)</span><textarea id="a_obs" class="in" rows="2">${esc(a.obs)}</textarea></label>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+    <button class="btn sec" onclick="closeModal()">Cancelar</button>
+    <button class="btn" onclick="saveAcc('${a.id}',${isNew})">Salvar</button></div>`);
+}
+function saveAcc(id,isNew){
+  const g=x=>document.getElementById(x).value;
+  const obj={id, inst:g("a_inst").trim(), tipo:g("a_tipo"), saldo:Number(g("a_saldo"))||0, obs:g("a_obs").trim()};
+  if(!obj.inst){alert("Informe a instituição.");return;}
+  if(isNew) S.accounts.push(obj);
+  else { const i=S.accounts.findIndex(x=>x.id===id); S.accounts[i]=obj; }
+  closeModal(); save();
+}
+function delAcc(id){ if(!confirm("Excluir esta conta?"))return; S.accounts=S.accounts.filter(x=>x.id!==id); save(); }
+
 /* ============ CONTÁBIL / ANUAL ============ */
 function vCont(){
-  const rows=MA.map((ab,i)=>{const st=monthStatus(i);return{ab,tot:monthTotal(i),pago:st.pago,apagar:st.apagar,soc:perSocio(i)};});
+  const rows=MA.map((ab,i)=>{const st=monthStatus(i);const rec=revReceived(i);return{ab,tot:monthTotal(i),pago:st.pago,apagar:st.apagar,rec,saldo:rec-monthTotal(i),soc:perSocio(i)};});
   const tot=yearTotal(), pagoY=rows.reduce((s,r)=>s+r.pago,0), apagarY=rows.reduce((s,r)=>s+r.apagar,0);
+  const recY=revYearReceived(), recPrevY=revYearTotal(), saldoY=recY-tot;
   const catY=TIPOS.map(t=>{let v=0;for(let i=0;i<12;i++)v+=occMonth(i).filter(o=>o.cost.tipo===t).reduce((a,o)=>a+o.value,0);return{t,v};}).filter(x=>x.v>0);
   let fix=0,vr=0;for(let i=0;i<12;i++)occMonth(i).forEach(o=>o.cost.classe==="Fixo"?fix+=o.value:vr+=o.value);
   return `<div class="toolbar"><button class="btn sec" onclick="exportJSON()">⬇️ Backup (JSON)</button>
     <button class="btn sec" onclick="exportCSV()">⬇️ Exportar CSV</button>
     <button class="btn sec" onclick="window.print()">🖨️ Imprimir / PDF</button><span class="sp"></span></div>
   <div class="cards">
-    <div class="card"><div class="lbl">Total ano</div><div class="val">${fmt(tot)}</div></div>
-    <div class="card green"><div class="lbl">Pago no ano</div><div class="val">${fmt(pagoY)}</div></div>
-    <div class="card red"><div class="lbl">A pagar (projeção)</div><div class="val">${fmt(apagarY)}</div></div>
-    <div class="card amber"><div class="lbl">Por sócio / ano (÷${nSoc()})</div><div class="val">${fmt(tot/nSoc())}</div></div>
+    <div class="card"><div class="lbl">Custo no ano</div><div class="val">${fmt(tot)}</div><div class="sub">pago ${fmt(pagoY)}</div></div>
+    <div class="card green"><div class="lbl">Receita recebida (ano)</div><div class="val">${fmt(recY)}</div><div class="sub">prevista ${fmt(recPrevY)}</div></div>
+    <div class="card ${saldoY<0?"red":"green"}"><div class="lbl">Resultado do ano</div><div class="val">${fmt(saldoY)}</div><div class="sub">recebido − custo</div></div>
+    <div class="card amber"><div class="lbl">Custo por sócio / ano (÷${nSoc()})</div><div class="val">${fmt(tot/nSoc())}</div></div>
   </div>
   <div class="grid2">
-    <div class="panel"><h3>Resumo mensal</h3><table><thead><tr><th>Mês</th><th class="r">Total</th><th class="r">Pago</th><th class="r">A pagar</th><th class="r">/sócio</th></tr></thead><tbody>
-    ${rows.map(r=>`<tr><td>${r.ab}</td><td class="r">${fmt(r.tot)}</td><td class="r">${fmt(r.pago)}</td><td class="r">${fmt(r.apagar)}</td><td class="r">${fmt(r.soc)}</td></tr>`).join("")}
-    </tbody><tfoot><tr><th>Ano</th><th class="r">${fmt(tot)}</th><th class="r">${fmt(pagoY)}</th><th class="r">${fmt(apagarY)}</th><th class="r">${fmt(tot/nSoc())}</th></tr></tfoot></table></div>
+    <div class="panel" style="overflow:auto"><h3>Resumo mensal</h3><table><thead><tr><th>Mês</th><th class="r">Custo</th><th class="r">Receita</th><th class="r">Pago</th><th class="r">Saldo</th><th class="r">/sócio</th></tr></thead><tbody>
+    ${rows.map(r=>`<tr><td>${r.ab}</td><td class="r">${fmt(r.tot)}</td><td class="r in-up">${fmt(r.rec)}</td><td class="r">${fmt(r.pago)}</td><td class="r ${r.saldo<0?"in-dn":"in-up"}">${fmt(r.saldo)}</td><td class="r">${fmt(r.soc)}</td></tr>`).join("")}
+    </tbody><tfoot><tr><th>Ano</th><th class="r">${fmt(tot)}</th><th class="r">${fmt(recY)}</th><th class="r">${fmt(pagoY)}</th><th class="r">${fmt(saldoY)}</th><th class="r">${fmt(tot/nSoc())}</th></tr></tfoot></table></div>
     <div class="panel"><h3>Por categoria (ano)</h3><canvas id="cCatY" height="150"></canvas>
       <table style="margin-top:12px"><tbody>
       ${catY.map(x=>`<tr><td>${x.t}</td><td class="r">${fmt(x.v)}</td><td class="r muted">${(x.v/tot*100).toFixed(1)}%</td></tr>`).join("")}
@@ -624,9 +834,11 @@ function delSocio(id){if(S.settings.socios.length<=1)return;if(!confirm("Remover
 function exportJSON(){dl("guto_backup.json",JSON.stringify(S,null,2),"application/json");}
 function importJSON(file){const r=new FileReader();r.onload=()=>{try{S=JSON.parse(r.result);save();alert("Backup restaurado.");}catch(e){alert("Arquivo inválido.");}};r.readAsText(file);}
 function exportCSV(){
-  let rows=[["Mes","Venc","Descricao","Tipo","Periodicidade","Classe","Valor","Parcela","Metodo","Status"]];
-  for(let m=0;m<12;m++)occMonth(m).forEach(o=>rows.push([MA[m],String(o.cost.dia||5).padStart(2,"0")+"/"+String(m+1).padStart(2,"0"),
-    o.cost.desc,o.cost.tipo,o.cost.periodicidade,o.cost.classe,o.value.toFixed(2),o.parcela,o.cost.metodo,o.pago?"Pago":"A pagar"]));
+  let rows=[["Mov","Mes","Venc","Descricao","Tipo","Periodicidade","Classe","Valor","Parcela","Metodo","Status"]];
+  for(let m=0;m<12;m++)occMonth(m).forEach(o=>rows.push(["Saida",MA[m],String(o.cost.dia||5).padStart(2,"0")+"/"+String(m+1).padStart(2,"0"),
+    o.cost.desc,o.cost.tipo,o.cost.periodicidade,o.cost.classe,(-o.value).toFixed(2),o.parcela,o.cost.metodo,o.pago?"Pago":"A pagar"]));
+  for(let m=0;m<12;m++)revOccMonth(m).forEach(o=>rows.push(["Entrada",MA[m],String(o.rev.dia||5).padStart(2,"0")+"/"+String(m+1).padStart(2,"0"),
+    o.rev.desc,"Receita",o.rev.periodicidade,"",o.value.toFixed(2),"",o.rev.metodo,o.recebido?"Recebido":"A receber"]));
   dl("guto_extrato_"+S.settings.year+".csv",rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(";")).join("\n"),"text/csv");
 }
 function dl(name,content,type){const b=new Blob([content],{type});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();}
