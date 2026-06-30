@@ -4,8 +4,14 @@ App de **gestão de caixa** da GrayCat (Projeto GUTO). Web app de **arquivo úni
 (`index.html`), sem build, login + dados compartilhados via **Supabase**.
 Ver também `CLAUDE.md` (contexto base do projeto).
 
-> Última atualização desta sessão: tema vintage anos 60/70 + logo circular + pesquisa de
-> integração bancária (Inter). Tudo commitado e pushado.
+> Última atualização (2026-06-30): **Receitas + Resultado/Fechamento + Contas bancárias.**
+> - Cadastro ganhou toggle **Custos | Receitas** (receita = modelo enxuto).
+> - Extratos viraram **Entradas e Saídas** (tick de recebido nas receitas).
+> - Aba "Aportes" virou **Resultado & Fechamento**: saldo = receita recebida − gastos previstos
+>   (base "necessidade do mês"); negativo → aporte/sócio, positivo → lucro/sócio. Inclui painel
+>   **Contas & Instituições** (banco/tipo/saldo manual). Dashboard e Contábil/Anual atualizados
+>   com receita e saldo. `migrate()` cobre estados salvos antes desta versão. Validado headless.
+> - Sessão anterior: tema vintage anos 60/70 + logo circular + pesquisa de integração bancária (Inter).
 
 ---
 
