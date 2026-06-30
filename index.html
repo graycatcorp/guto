@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guto — Seu Painel Financeiro e Contábil</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#1F3A5F; --navy2:#16293f; --blue:#2E5A88; --accent:#3b82f6;
+  --green:#16a34a; --red:#dc2626; --amber:#d97706;
+  --bg:#0f172a; --panel:#ffffff; --muted:#64748b; --line:#e2e8f0; --soft:#f1f5f9;
+  --txt:#0f172a;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',Arial,sans-serif;background:#eef2f7;color:var(--txt);font-size:14px}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:14px}
+.hidden{display:none!important}
+/* layout */
+#app{display:flex;min-height:100vh}
+.side{width:230px;background:linear-gradient(180deg,var(--navy),var(--navy2));color:#dbe4f0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.brand{padding:20px 18px 12px}
+.brand b{font-size:19px;color:#fff;display:block;letter-spacing:.3px}
+.brand span{font-size:11px;color:#9db4d0}
+.nav{margin-top:10px;flex:1}
+.nav a{display:flex;gap:10px;align-items:center;padding:12px 18px;color:#c6d4e6;text-decoration:none;font-weight:500;border-left:3px solid transparent}
+.nav a.active{background:rgba(255,255,255,.08);color:#fff;border-left-color:var(--accent)}
+.nav a:hover{background:rgba(255,255,255,.05)}
+.who{padding:14px 18px;border-top:1px solid rgba(255,255,255,.1);font-size:12px;color:#9db4d0}
+.who b{color:#fff;display:block;font-size:13px}
+.who button{margin-top:8px;background:transparent;border:1px solid rgba(255,255,255,.25);color:#cfe;border-radius:6px;padding:5px 10px;font-size:12px}
+.main{flex:1;min-width:0}
+.top{background:#fff;border-bottom:1px solid var(--line);padding:14px 26px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}
+.top h1{margin:0;font-size:18px;color:var(--navy)}
+.top .yr{color:var(--muted);font-size:13px}
+.wrap{padding:24px 26px;max-width:1180px}
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.card .lbl{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.card .val{font-size:24px;font-weight:700;color:var(--navy);margin-top:6px}
+.card .sub{font-size:12px;color:var(--muted);margin-top:3px}
+.card.green .val{color:var(--green)} .card.red .val{color:var(--red)} .card.amber .val{color:var(--amber)}
+.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:18px}
+.panel h3{margin:0 0 14px;font-size:15px;color:var(--navy);display:flex;align-items:center;gap:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}.side{width:64px}.brand span,.nav a span,.who{display:none}.brand b{font-size:0}.brand b::first-letter{font-size:20px}}
+/* table */
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);font-size:13px}
+th{background:var(--soft);color:var(--navy);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.3px;position:sticky}
+tr:hover td{background:#fafcff}
+td.r,th.r{text-align:right}
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.tag.fix{background:#e0e7ff;color:#3730a3}.tag.var{background:#fef3c7;color:#92400e}
+.tag.pago{background:#dcfce7;color:#166534}.tag.apagar{background:#fee2e2;color:#991b1b}
+.tag.prev{background:#f1f5f9;color:#475569}
+.pill{font-size:11px;background:var(--soft);color:var(--muted);padding:2px 7px;border-radius:6px}
+/* buttons / forms */
+.btn{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-weight:600;font-size:13px}
+.btn:hover{background:#2563eb}
+.btn.sec{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.btn.sec:hover{background:var(--soft)}
+.btn.sm{padding:5px 10px;font-size:12px}
+.btn.danger{background:#fff;color:var(--red);border:1px solid #fecaca}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.toolbar .sp{flex:1}
+label.fld{display:block;margin-bottom:12px}
+label.fld span{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px}
+input.in,select.in,textarea.in{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+input.in:disabled,select.in:disabled{background:#f1f5f9;color:#94a3b8}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+/* modal */
+.ov{position:fixed;inset:0;background:rgba(15,23,42,.5);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:50;overflow:auto}
+.modal{background:#fff;border-radius:14px;width:640px;max-width:100%;padding:24px}
+.modal h2{margin:0 0 16px;color:var(--navy);font-size:18px}
+.chk{width:18px;height:18px;cursor:pointer;accent-color:var(--accent)}
+.muted{color:var(--muted)}
+.center{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--navy),var(--navy2))}
+.login{background:#fff;border-radius:16px;padding:34px;width:380px;max-width:100%}
+.login b{color:var(--navy);font-size:22px}.login p{color:var(--muted);margin:4px 0 20px;font-size:13px}
+.who-pick{display:flex;flex-direction:column;gap:8px}
+.who-pick button{padding:12px;border:1px solid var(--line);background:#fff;border-radius:10px;text-align:left;font-weight:600;color:var(--navy)}
+.who-pick button:hover{border-color:var(--accent);background:#f8fbff}
+.banner{background:#fffbeb;border:1px solid #fde68a;color:#92400e;padding:10px 14px;border-radius:10px;font-size:12px;margin-bottom:16px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN / PROFILE ===== -->
+<div id="gate" class="center">
+  <div class="login">
+    <b>Guto</b>
+    <p>Seu Painel Financeiro e Contábil — GrayCat · Tupham</p>
+    <div id="cloudLogin" class="hidden">
+      <label class="fld"><span>E-mail</span><input id="liEmail" class="in" type="email" placeholder="voce@empresa.com"></label>
+      <label class="fld"><span>Senha</span><input id="liPass" class="in" type="password"></label>
+      <div style="display:flex;gap:8px">
+        <button class="btn" style="flex:1" onclick="cloudSignIn()">Entrar</button>
+        <button class="btn sec" onclick="cloudSignUp()">Criar conta</button>
+      </div>
+      <p id="liMsg" style="color:var(--red);margin-top:10px"></p>
+    </div>
+    <div id="localLogin">
+      <p style="margin-bottom:10px;font-weight:600;color:var(--navy)">Quem está acessando?</p>
+      <div id="whoPick" class="who-pick"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div id="app" class="hidden">
+  <aside class="side">
+    <div class="brand"><b>Guto</b><span>Painel Financeiro e Contábil</span></div>
+    <nav class="nav" id="nav">
+      <a data-v="dash" class="active">📊 <span>Dashboard</span></a>
+      <a data-v="cad">🗂️ <span>Cadastro</span></a>
+      <a data-v="ext">📑 <span>Extratos</span></a>
+      <a data-v="ap">💰 <span>Aportes</span></a>
+      <a data-v="cont">📘 <span>Contábil / Anual</span></a>
+      <a data-v="cfg">⚙️ <span>Configurações</span></a>
+    </nav>
+    <div class="who">
+      <span>Acessando como</span>
+      <b id="whoName">—</b>
+      <button onclick="logout()">Trocar / Sair</button>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="top">
+      <h1 id="viewTitle">Dashboard</h1>
+      <div class="yr">Ano <b id="topYear">2026</b> · moeda R$ · <span id="topMode" class="pill">local</span></div>
+    </div>
+    <div class="wrap" id="view"></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   CONFIG — nuvem (login + dados compartilhados)
+   Para ativar: preencha as 2 chaves do seu projeto Supabase.
+   Vazio = modo local (dados só neste navegador).
+========================================================= */
+const SUPABASE_URL = "https://hzznxohbrwhgxuzvkwmr.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_4Pz56s6NaJmTXbshMQgA9A_tZ7Ai2HJ";
+const ORG_ID = "guto-graycat";
+let sb=null, CLOUD=!!(SUPABASE_URL&&SUPABASE_ANON_KEY);
+
+/* ============ MODELO / ESTADO ============ */
+const MA=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+const MF=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const TIPOS=["Infra","Mkt","adm","impostos","contabil","trafego pago Meta","trafego pago tik tok"];
+const METODOS=["Pix","Saldo","Cartão de crédito","Aporte Sócio"];
+const fmt=n=>"R$ "+(Number(n)||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+let S=null;            // estado
+let currentUser=null;  // {id,name,email}
+let curMonth=new Date().getMonth();
+
+function seed(){
+  return {
+    settings:{org:"GrayCat / Tupham", year:2026, defaultDay:5, aporteDay:5,
+      socios:[{id:"s1",name:"Sócio 1"},{id:"s2",name:"Sócio 2"},{id:"s3",name:"Sócio 3"}]},
+    costs:[
+      c("Google Workspace (e-mail/Drive)","adm","Mensal","Fixo",196,"Jun","Indeterminado","À vista",0,5,"Cartão de crédito","Contas do time."),
+      c("Google Cloud & API","Infra","Mensal","Variável",50,"Jun","Indeterminado","À vista",0,5,"Cartão de crédito","Valor é prévia; medir no console."),
+      c("Claude (desenvolvimento)","Infra","Mensal","Fixo",550,"Jun","Indeterminado","À vista",0,5,"Cartão de crédito","Assinatura de dev."),
+      c("Contabilidade","contabil","Mensal","Fixo",274,"Jun","Indeterminado","À vista",0,5,"Pix","Honorários contábeis."),
+      c("API Esportes (sports mode)","Infra","Mensal","Fixo",110,"Jun","Indeterminado","À vista",0,5,"Cartão de crédito","Feed esportivo."),
+      c("Meta Business","Mkt","Mensal","Fixo",120,"Jun","Indeterminado","À vista",0,5,"Cartão de crédito","Assinatura/verificação Meta."),
+      c("TFF Prefeitura (alvará)","impostos","Anual","Fixo",1456,"Jun","","À vista",0,10,"Pix","Taxa anual. Conferir mês real."),
+    ],
+    payments:{},  // "costId|m": {pago:bool, valorReal:num|null}
+    aportes:{}    // "socioId|m": {feito:bool, data:"YYYY-MM-DD"}
+  };
+}
+function c(desc,tipo,per,classe,valor,ini,fim,pag,q,dia,met,obs){
+  return {id:uid(),desc,tipo,periodicidade:per,classe,valor:Number(valor),mesIni:ini,mesFim:fim,
+    pagamento:pag,qtde:Number(q)||0,dia:Number(dia)||0,metodo:met,obs:obs||""};
+}
+
+/* ============ LÓGICA ============ */
+function occMonth(m){ // ocorrências do mês m (0-11)
+  const out=[];
+  for(const k of S.costs){
+    const mi=MA.indexOf(k.mesIni);
+    if(mi<0) continue;
+    let appear=false, base=0, parc="";
+    if(k.periodicidade==="Mensal"){
+      let mf = k.mesFim==="Indeterminado"?11:(MA.indexOf(k.mesFim)>=0?MA.indexOf(k.mesFim):mi);
+      if(m>=mi && m<=mf){appear=true; base=k.valor;}
+    } else { // Esporádico / Anual
+      const parcelado = k.pagamento==="Parcelado";
+      const q = parcelado?Math.max(1,k.qtde||1):1;
+      const idx = m-mi+1;
+      if(idx>=1 && idx<=q){appear=true; base=k.valor/q; if(q>1)parc=idx+"/"+q;}
+    }
+    if(!appear) continue;
+    const pkey=k.id+"|"+m;
+    const pay=S.payments[pkey]||{};
+    const isVar=k.classe==="Variável";
+    const hasReal=pay.valorReal!=null && pay.valorReal!=="";
+    const value = (isVar && hasReal)? Number(pay.valorReal):base;
+    out.push({cost:k, key:pkey, value, base, parcela:parc, pago:!!pay.pago,
+      preview:isVar && !hasReal, valorReal: hasReal?Number(pay.valorReal):null});
+  }
+  return out;
+}
+const monthTotal=m=>occMonth(m).reduce((s,o)=>s+o.value,0);
+const nSoc=()=>S.settings.socios.length||1;
+const perSocio=m=>monthTotal(m)/nSoc();
+function monthStatus(m){let pago=0,apagar=0;for(const o of occMonth(m)){o.pago?pago+=o.value:apagar+=o.value;}return{pago,apagar};}
+function aporteState(m){
+  const share=perSocio(m); let feito=0;
+  const list=S.settings.socios.map(s=>{
+    const a=S.aportes[s.id+"|"+m]||{};
+    if(a.feito)feito+=share;
+    return {socio:s, share, feito:!!a.feito, data:a.data||""};
+  });
+  return {share, needed:monthTotal(m), aportado:feito, pendente:monthTotal(m)-feito, list};
+}
+const yearTotal=()=>{let t=0;for(let m=0;m<12;m++)t+=monthTotal(m);return t;};
+
+/* ============ PERSISTÊNCIA ============ */
+const LS="guto_state_v1";
+async function loadState(){
+  if(CLOUD){
+    const {data,error}=await sb.from("app_state").select("data").eq("id",ORG_ID).maybeSingle();
+    if(error){console.warn(error);}
+    const valid = data && data.data && data.data.settings && Array.isArray(data.data.costs);
+    S = valid ? data.data : seed();
+    if(!valid){ await sb.from("app_state").upsert({id:ORG_ID,data:S,updated_at:new Date().toISOString()}); }
+  } else {
+    const raw=localStorage.getItem(LS);
+    S = raw? JSON.parse(raw): seed();
+  }
+}
+let saveT=null;
+function save(){
+  if(CLOUD){ clearTimeout(saveT); saveT=setTimeout(async()=>{
+      await sb.from("app_state").upsert({id:ORG_ID,data:S,updated_at:new Date().toISOString()});
+    },400);
+  } else { localStorage.setItem(LS,JSON.stringify(S)); }
+  if(typeof render==="function") render();
+}
+
+/* ============ LOGIN ============ */
+async function boot(){
+  document.getElementById("topMode").textContent = CLOUD?"nuvem":"local";
+  if(CLOUD){
+    sb = supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+    document.getElementById("cloudLogin").classList.remove("hidden");
+    document.getElementById("localLogin").classList.add("hidden");
+    const {data}=await sb.auth.getSession();
+    if(data.session){ currentUser={id:data.session.user.id,name:data.session.user.email,email:data.session.user.email}; await enter(); }
+  } else {
+    await loadState();
+    renderWhoPick();
+  }
+}
+function renderWhoPick(){
+  const w=document.getElementById("whoPick"); w.innerHTML="";
+  S.settings.socios.forEach(s=>{
+    const b=document.createElement("button");
+    b.textContent="👤 "+s.name;
+    b.onclick=()=>{currentUser={id:s.id,name:s.name}; enter();};
+    w.appendChild(b);
+  });
+  const adm=document.createElement("button");
+  adm.textContent="🏢 Visão da empresa (admin)";
+  adm.onclick=()=>{currentUser={id:"admin",name:"Empresa"}; enter();};
+  w.appendChild(adm);
+}
+async function cloudSignIn(){
+  const email=liEmail.value, password=liPass.value;
+  const {data,error}=await sb.auth.signInWithPassword({email,password});
+  if(error){liMsg.textContent=error.message;return;}
+  currentUser={id:data.user.id,name:email,email}; await enter();
+}
+async function cloudSignUp(){
+  const email=liEmail.value, password=liPass.value;
+  const {error}=await sb.auth.signUp({email,password});
+  liMsg.textContent = error? error.message : "Conta criada! Confirme o e-mail (se exigido) e clique em Entrar.";
+}
+async function enter(){
+  if(CLOUD && !S) await loadState();
+  document.getElementById("gate").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  document.getElementById("whoName").textContent=currentUser.name;
+  document.getElementById("topYear").textContent=S.settings.year;
+  render();
+}
+async function logout(){
+  if(CLOUD&&sb){await sb.auth.signOut();}
+  currentUser=null;
+  document.getElementById("app").classList.add("hidden");
+  document.getElementById("gate").classList.remove("hidden");
+  if(!CLOUD) renderWhoPick();
+}
+
+/* ============ NAVEGAÇÃO ============ */
+let view="dash";
+document.getElementById("nav").addEventListener("click",e=>{
+  const a=e.target.closest("a"); if(!a)return;
+  document.querySelectorAll("#nav a").forEach(x=>x.classList.remove("active"));
+  a.classList.add("active"); view=a.dataset.v; render();
+});
+const TITLES={dash:"Dashboard",cad:"Cadastro de Custos",ext:"Extratos",ap:"Aportes dos Sócios",cont:"Contábil / Anual",cfg:"Configurações"};
+let charts=[];
+function render(){
+  document.getElementById("viewTitle").textContent=TITLES[view];
+  charts.forEach(c=>c.destroy()); charts=[];
+  const v=document.getElementById("view");
+  if(view==="dash")v.innerHTML=vDash();
+  if(view==="cad")v.innerHTML=vCad();
+  if(view==="ext")v.innerHTML=vExt();
+  if(view==="ap")v.innerHTML=vAp();
+  if(view==="cont")v.innerHTML=vCont();
+  if(view==="cfg")v.innerHTML=vCfg();
+  if(view==="dash")drawDash();
+  if(view==="cont")drawCont();
+}
+
+/* ============ DASHBOARD ============ */
+function vDash(){
+  const m=curMonth, st=monthStatus(m), ap=aporteState(m);
+  const cats=TIPOS.map(t=>({t,v:occMonth(m).filter(o=>o.cost.tipo===t).reduce((s,o)=>s+o.value,0)})).filter(x=>x.v>0);
+  return `
+  <div class="toolbar">
+    <select class="in" style="width:auto" onchange="curMonth=+this.value;render()">${MF.map((x,i)=>`<option value="${i}" ${i===m?"selected":""}>${x} / ${S.settings.year}</option>`).join("")}</select>
+    <span class="sp"></span>
+  </div>
+  <div class="cards">
+    <div class="card"><div class="lbl">Total do mês</div><div class="val">${fmt(monthTotal(m))}</div><div class="sub">${occMonth(m).length} lançamentos</div></div>
+    <div class="card"><div class="lbl">Por sócio (÷${nSoc()})</div><div class="val">${fmt(perSocio(m))}</div><div class="sub">cota de cada um</div></div>
+    <div class="card green"><div class="lbl">Pago</div><div class="val">${fmt(st.pago)}</div></div>
+    <div class="card red"><div class="lbl">A pagar</div><div class="val">${fmt(st.apagar)}</div></div>
+    <div class="card amber"><div class="lbl">Acumulado no ano</div><div class="val">${fmt(yearTotal())}</div></div>
+  </div>
+  <div class="grid2">
+    <div class="panel"><h3>Custo por mês (${S.settings.year})</h3><canvas id="cMonth" height="170"></canvas></div>
+    <div class="panel"><h3>Por categoria — ${MF[m]}</h3>${cats.length?`<canvas id="cCat" height="170"></canvas>`:`<p class="muted">Sem lançamentos neste mês.</p>`}</div>
+  </div>
+  <div class="panel">
+    <h3>💰 Aportes — ${MF[m]} <span class="pill">cota ${fmt(ap.share)}/sócio</span></h3>
+    <table><thead><tr><th>Sócio</th><th class="r">Deve aportar</th><th>Status</th><th>Data</th></tr></thead><tbody>
+    ${ap.list.map(x=>`<tr><td>${x.socio.name}</td><td class="r">${fmt(x.share)}</td>
+      <td>${x.feito?'<span class="tag pago">aporte feito</span>':'<span class="tag apagar">pendente</span>'}</td>
+      <td class="muted">${x.data||"—"}</td></tr>`).join("")}
+    </tbody><tfoot><tr><th>Total</th><th class="r">${fmt(ap.needed)}</th>
+      <th colspan="2">Aportado ${fmt(ap.aportado)} · Pendente ${fmt(ap.pendente)}</th></tr></tfoot></table>
+  </div>`;
+}
+function drawDash(){
+  const mc=document.getElementById("cMonth");
+  if(mc)charts.push(new Chart(mc,{type:"bar",data:{labels:MA,datasets:[{data:MA.map((_,i)=>monthTotal(i)),backgroundColor:"#2E5A88",borderRadius:5}]},options:co()}));
+  const m=curMonth, cats=TIPOS.map(t=>occMonth(m).filter(o=>o.cost.tipo===t).reduce((s,o)=>s+o.value,0));
+  const cc=document.getElementById("cCat");
+  if(cc){const lab=[],dat=[];TIPOS.forEach((t,i)=>{if(cats[i]>0){lab.push(t);dat.push(cats[i]);}});
+    charts.push(new Chart(cc,{type:"doughnut",data:{labels:lab,datasets:[{data:dat,backgroundColor:["#1F3A5F","#2E5A88","#3b82f6","#60a5fa","#93c5fd","#d97706","#f59e0b"]}]},options:{plugins:{legend:{position:"right"}}}}));}
+}
+const co=()=>({plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>"R$ "+v}}}});
+
+/* ============ CADASTRO ============ */
+function vCad(){
+  return `<div class="toolbar"><button class="btn" onclick="editCost()">+ Novo custo</button>
+    <span class="muted">Cadastre uma vez — os extratos e o dashboard se atualizam sozinhos.</span><span class="sp"></span></div>
+  <div class="panel" style="padding:0;overflow:auto">
+  <table><thead><tr><th>Descrição</th><th>Tipo</th><th>Period.</th><th>Classe</th><th class="r">Valor</th><th>Período/Ref.</th><th>Pgto</th><th>Método</th><th></th></tr></thead><tbody>
+  ${S.costs.map(k=>`<tr>
+    <td><b>${esc(k.desc)}</b>${k.obs?`<br><span class="muted" style="font-size:11px">${esc(k.obs)}</span>`:""}</td>
+    <td><span class="pill">${k.tipo}</span></td><td>${k.periodicidade}</td>
+    <td><span class="tag ${k.classe==="Fixo"?"fix":"var"}">${k.classe}</span></td>
+    <td class="r">${fmt(k.valor)}${k.classe==="Variável"?'<br><span class="tag prev">prévia</span>':""}</td>
+    <td>${periodLabel(k)}</td>
+    <td>${k.pagamento}${k.pagamento==="Parcelado"?` ${k.qtde}x`:""}</td>
+    <td>${k.metodo}</td>
+    <td style="white-space:nowrap"><button class="btn sec sm" onclick="editCost('${k.id}')">editar</button>
+      <button class="btn danger sm" onclick="delCost('${k.id}')">excluir</button></td></tr>`).join("")}
+  </tbody></table></div>`;
+}
+function periodLabel(k){
+  if(k.periodicidade==="Mensal")return `${k.mesIni} → ${k.mesFim||"?"}`;
+  return `${k.mesIni}${k.qtde>1&&k.pagamento==="Parcelado"?` (${k.qtde}x)`:""}`;
+}
+function editCost(id){
+  const k=id?S.costs.find(x=>x.id===id):c("","Infra","Mensal","Fixo",0,"Jun","Indeterminado","À vista",0,5,"Pix","");
+  const isNew=!id;
+  const opt=(arr,sel)=>arr.map(o=>`<option ${o===sel?"selected":""}>${o}</option>`).join("");
+  showModal(`<h2>${isNew?"Novo custo":"Editar custo"}</h2>
+  <div class="formgrid">
+    <label class="fld" style="grid-column:1/3"><span>Descrição</span><input id="f_desc" class="in" value="${esc(k.desc)}"></label>
+    <label class="fld"><span>Tipo do gasto</span><select id="f_tipo" class="in">${opt(TIPOS,k.tipo)}</select></label>
+    <label class="fld"><span>Periodicidade</span><select id="f_per" class="in" onchange="condFields()">${opt(["Mensal","Anual","Esporádico"],k.periodicidade)}</select></label>
+    <label class="fld"><span>Classe</span><select id="f_cls" class="in">${opt(["Fixo","Variável"],k.classe)}</select></label>
+    <label class="fld"><span>Valor previsto (R$) <span class="muted">— variável = prévia</span></span><input id="f_val" class="in" type="number" step="0.01" value="${k.valor}"></label>
+    <label class="fld"><span id="lblIni">Mês início / referência</span><select id="f_ini" class="in">${opt(MA,k.mesIni)}</select></label>
+    <label class="fld" id="wrapFim"><span>Mês fim (Mensal)</span><select id="f_fim" class="in">${opt(["Indeterminado",...MA],k.mesFim||"Indeterminado")}</select></label>
+    <label class="fld" id="wrapPag"><span>Pagamento</span><select id="f_pag" class="in" onchange="condFields()">${opt(["À vista","Parcelado"],k.pagamento)}</select></label>
+    <label class="fld" id="wrapQt"><span>Qtde de parcelas</span><input id="f_qt" class="in" type="number" min="1" value="${k.qtde||1}"></label>
+    <label class="fld"><span>Dia de vencimento</span><input id="f_dia" class="in" type="number" min="1" max="28" value="${k.dia||5}"></label>
+    <label class="fld"><span>Método de pagamento</span><select id="f_met" class="in">${opt(METODOS,k.metodo)}</select></label>
+    <label class="fld" style="grid-column:1/3"><span>Observações</span><textarea id="f_obs" class="in" rows="2">${esc(k.obs)}</textarea></label>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+    <button class="btn sec" onclick="closeModal()">Cancelar</button>
+    <button class="btn" onclick="saveCost('${k.id}',${isNew})">Salvar</button></div>`);
+  condFields();
+}
+function condFields(){
+  const per=document.getElementById("f_per").value;
+  const mensal=per==="Mensal";
+  document.getElementById("wrapFim").style.opacity=mensal?1:.4;
+  document.getElementById("f_fim").disabled=!mensal;
+  document.getElementById("lblIni").textContent=mensal?"Mês de início":"Mês de referência";
+  document.getElementById("wrapPag").style.opacity=mensal?.4:1;
+  document.getElementById("f_pag").disabled=mensal;
+  const parc=!mensal && document.getElementById("f_pag").value==="Parcelado";
+  document.getElementById("wrapQt").style.opacity=parc?1:.4;
+  document.getElementById("f_qt").disabled=!parc;
+}
+function saveCost(id,isNew){
+  const g=x=>document.getElementById(x).value;
+  const per=g("f_per");
+  const obj={id, desc:g("f_desc").trim(), tipo:g("f_tipo"), periodicidade:per, classe:g("f_cls"),
+    valor:Number(g("f_val"))||0, mesIni:g("f_ini"),
+    mesFim: per==="Mensal"? g("f_fim"):"",
+    pagamento: per==="Mensal"? "À vista": g("f_pag"),
+    qtde: (per!=="Mensal"&&g("f_pag")==="Parcelado")? Number(g("f_qt"))||1:0,
+    dia:Number(g("f_dia"))||5, metodo:g("f_met"), obs:g("f_obs").trim()};
+  if(!obj.desc){alert("Informe a descrição.");return;}
+  if(isNew)S.costs.push(obj);
+  else {const i=S.costs.findIndex(x=>x.id===id); S.costs[i]=obj;}
+  closeModal(); save();
+}
+function delCost(id){ if(!confirm("Excluir este custo?"))return; S.costs=S.costs.filter(x=>x.id!==id);
+  Object.keys(S.payments).forEach(k=>{if(k.startsWith(id+"|"))delete S.payments[k];}); save(); }
+
+/* ============ EXTRATOS ============ */
+let fCat="",fMet="",fSt="",fQ="";
+function vExt(){
+  const m=curMonth; let occ=occMonth(m);
+  if(fCat)occ=occ.filter(o=>o.cost.tipo===fCat);
+  if(fMet)occ=occ.filter(o=>o.cost.metodo===fMet);
+  if(fSt)occ=occ.filter(o=>fSt==="Pago"?o.pago:!o.pago);
+  if(fQ)occ=occ.filter(o=>o.cost.desc.toLowerCase().includes(fQ.toLowerCase()));
+  const tot=occ.reduce((s,o)=>s+o.value,0);
+  const sel=(arr,cur)=>arr.map(o=>`<option ${o===cur?"selected":""}>${o}</option>`).join("");
+  return `<div class="toolbar">
+    <select class="in" style="width:auto" onchange="curMonth=+this.value;render()">${MF.map((x,i)=>`<option value="${i}" ${i===m?"selected":""}>${x}</option>`).join("")}</select>
+    <input class="in" style="width:180px" placeholder="buscar descrição" value="${fQ}" oninput="fQ=this.value;render()">
+    <select class="in" style="width:auto" onchange="fCat=this.value;render()"><option value="">Categoria: todas</option>${sel(TIPOS,fCat)}</select>
+    <select class="in" style="width:auto" onchange="fMet=this.value;render()"><option value="">Método: todos</option>${sel(METODOS,fMet)}</select>
+    <select class="in" style="width:auto" onchange="fSt=this.value;render()"><option value="">Status: todos</option><option ${fSt==="Pago"?"selected":""}>Pago</option><option ${fSt==="A pagar"?"selected":""}>A pagar</option></select>
+    <span class="sp"></span><b>Total: ${fmt(tot)}</b></div>
+  <div class="panel" style="padding:0;overflow:auto">
+  <table><thead><tr><th>Venc.</th><th>Descrição</th><th>Tipo</th><th>Classe</th><th class="r">Valor</th><th>Parc.</th><th>Método</th><th>Valor real</th><th>Pago?</th></tr></thead><tbody>
+  ${occ.length?occ.map(o=>{
+    const dia=String(o.cost.dia||5).padStart(2,"0");
+    return `<tr>
+    <td>${dia}/${String(m+1).padStart(2,"0")}</td>
+    <td><b>${esc(o.cost.desc)}</b></td><td><span class="pill">${o.cost.tipo}</span></td>
+    <td><span class="tag ${o.cost.classe==="Fixo"?"fix":"var"}">${o.cost.classe}</span></td>
+    <td class="r">${fmt(o.value)} ${o.preview?'<span class="tag prev">prévia</span>':""}</td>
+    <td>${o.parcela||"—"}</td><td>${o.cost.metodo}</td>
+    <td>${o.cost.classe==="Variável"?`<input class="in" style="width:110px;padding:5px" type="number" step="0.01" placeholder="real" value="${o.valorReal??""}" onchange="setReal('${o.key}',this.value)">`:'<span class="muted">—</span>'}</td>
+    <td><input type="checkbox" class="chk" ${o.pago?"checked":""} onchange="setPago('${o.key}',this.checked)"></td></tr>`;}).join("")
+    :`<tr><td colspan="9" class="muted" style="padding:24px;text-align:center">Nenhum lançamento com esses filtros.</td></tr>`}
+  </tbody></table></div>`;
+}
+function setPago(key,v){ S.payments[key]=Object.assign({},S.payments[key],{pago:v}); save(); }
+function setReal(key,v){ S.payments[key]=Object.assign({},S.payments[key],{valorReal:v===""?null:Number(v)}); save(); }
+
+/* ============ APORTES ============ */
+function vAp(){
+  const m=curMonth, ap=aporteState(m);
+  const isAdmin=currentUser.id==="admin"||CLOUD;
+  return `<div class="toolbar">
+    <select class="in" style="width:auto" onchange="curMonth=+this.value;render()">${MF.map((x,i)=>`<option value="${i}" ${i===m?"selected":""}>${x} / ${S.settings.year}</option>`).join("")}</select>
+    <span class="sp"></span><span class="pill">cota por sócio: ${fmt(ap.share)}</span></div>
+  <div class="cards">
+    <div class="card"><div class="lbl">Custo do mês</div><div class="val">${fmt(ap.needed)}</div></div>
+    <div class="card green"><div class="lbl">Aportado</div><div class="val">${fmt(ap.aportado)}</div></div>
+    <div class="card red"><div class="lbl">Pendente</div><div class="val">${fmt(ap.pendente)}</div></div>
+  </div>
+  <div class="panel"><h3>Controle de aportes — ${MF[m]}</h3>
+  <table><thead><tr><th>Sócio</th><th class="r">Deve aportar</th><th>Data do aporte</th><th>Aporte feito</th></tr></thead><tbody>
+  ${ap.list.map(x=>{
+    const can = isAdmin || currentUser.id===x.socio.id;
+    return `<tr><td>${x.socio.name} ${currentUser.id===x.socio.id?'<span class="pill">você</span>':""}</td>
+    <td class="r">${fmt(x.share)}</td>
+    <td><input type="date" class="in" style="width:160px;padding:5px" value="${x.data}" ${can?"":"disabled"} onchange="setAporteData('${x.socio.id}',this.value)"></td>
+    <td><input type="checkbox" class="chk" ${x.feito?"checked":""} ${can?"":"disabled"} onchange="setAporte('${x.socio.id}',this.checked)">
+      ${x.feito?'<span class="tag pago" style="margin-left:8px">ok</span>':'<span class="tag apagar" style="margin-left:8px">pendente</span>'}</td></tr>`;}).join("")}
+  </tbody></table>
+  <p class="muted" style="margin-top:10px">Cada sócio marca o próprio aporte (no modo nuvem). O total consolidado aparece no Dashboard da empresa.</p></div>`;
+}
+function setAporte(sid,v){const k=sid+"|"+curMonth;S.aportes[k]=Object.assign({feito:false,data:""},S.aportes[k],{feito:v});if(v&&!S.aportes[k].data)S.aportes[k].data=new Date().toISOString().slice(0,10);save();}
+function setAporteData(sid,v){const k=sid+"|"+curMonth;S.aportes[k]=Object.assign({feito:false,data:""},S.aportes[k],{data:v});save();}
+
+/* ============ CONTÁBIL / ANUAL ============ */
+function vCont(){
+  const rows=MA.map((ab,i)=>{const st=monthStatus(i);return{ab,tot:monthTotal(i),pago:st.pago,apagar:st.apagar,soc:perSocio(i)};});
+  const tot=yearTotal(), pagoY=rows.reduce((s,r)=>s+r.pago,0), apagarY=rows.reduce((s,r)=>s+r.apagar,0);
+  const catY=TIPOS.map(t=>{let v=0;for(let i=0;i<12;i++)v+=occMonth(i).filter(o=>o.cost.tipo===t).reduce((a,o)=>a+o.value,0);return{t,v};}).filter(x=>x.v>0);
+  let fix=0,vr=0;for(let i=0;i<12;i++)occMonth(i).forEach(o=>o.cost.classe==="Fixo"?fix+=o.value:vr+=o.value);
+  return `<div class="toolbar"><button class="btn sec" onclick="exportJSON()">⬇️ Backup (JSON)</button>
+    <button class="btn sec" onclick="exportCSV()">⬇️ Exportar CSV</button>
+    <button class="btn sec" onclick="window.print()">🖨️ Imprimir / PDF</button><span class="sp"></span></div>
+  <div class="cards">
+    <div class="card"><div class="lbl">Total ano</div><div class="val">${fmt(tot)}</div></div>
+    <div class="card green"><div class="lbl">Pago no ano</div><div class="val">${fmt(pagoY)}</div></div>
+    <div class="card red"><div class="lbl">A pagar (projeção)</div><div class="val">${fmt(apagarY)}</div></div>
+    <div class="card amber"><div class="lbl">Por sócio / ano (÷${nSoc()})</div><div class="val">${fmt(tot/nSoc())}</div></div>
+  </div>
+  <div class="grid2">
+    <div class="panel"><h3>Resumo mensal</h3><table><thead><tr><th>Mês</th><th class="r">Total</th><th class="r">Pago</th><th class="r">A pagar</th><th class="r">/sócio</th></tr></thead><tbody>
+    ${rows.map(r=>`<tr><td>${r.ab}</td><td class="r">${fmt(r.tot)}</td><td class="r">${fmt(r.pago)}</td><td class="r">${fmt(r.apagar)}</td><td class="r">${fmt(r.soc)}</td></tr>`).join("")}
+    </tbody><tfoot><tr><th>Ano</th><th class="r">${fmt(tot)}</th><th class="r">${fmt(pagoY)}</th><th class="r">${fmt(apagarY)}</th><th class="r">${fmt(tot/nSoc())}</th></tr></tfoot></table></div>
+    <div class="panel"><h3>Por categoria (ano)</h3><canvas id="cCatY" height="150"></canvas>
+      <table style="margin-top:12px"><tbody>
+      ${catY.map(x=>`<tr><td>${x.t}</td><td class="r">${fmt(x.v)}</td><td class="r muted">${(x.v/tot*100).toFixed(1)}%</td></tr>`).join("")}
+      <tr><th>Fixo</th><th class="r">${fmt(fix)}</th><th class="r muted">${(fix/tot*100||0).toFixed(1)}%</th></tr>
+      <tr><th>Variável</th><th class="r">${fmt(vr)}</th><th class="r muted">${(vr/tot*100||0).toFixed(1)}%</th></tr>
+      </tbody></table></div>
+  </div>`;
+}
+function drawCont(){
+  const tot=yearTotal();
+  const cc=document.getElementById("cCatY");
+  if(cc){const lab=[],dat=[];TIPOS.forEach(t=>{let v=0;for(let i=0;i<12;i++)v+=occMonth(i).filter(o=>o.cost.tipo===t).reduce((a,o)=>a+o.value,0);if(v>0){lab.push(t);dat.push(v);}});
+    charts.push(new Chart(cc,{type:"bar",data:{labels:lab,datasets:[{data:dat,backgroundColor:"#2E5A88",borderRadius:5}]},options:{indexAxis:"y",plugins:{legend:{display:false}}}}));}
+}
+
+/* ============ CONFIG ============ */
+function vCfg(){
+  const s=S.settings;
+  return `<div class="panel"><h3>Empresa & sócios</h3>
+  <div class="formgrid">
+    <label class="fld"><span>Nome</span><input class="in" value="${esc(s.org)}" onchange="S.settings.org=this.value;save()"></label>
+    <label class="fld"><span>Ano de referência</span><input class="in" type="number" value="${s.year}" onchange="S.settings.year=+this.value;document.getElementById('topYear').textContent=this.value;save()"></label>
+    <label class="fld"><span>Dia padrão de vencimento (mensal)</span><input class="in" type="number" value="${s.defaultDay}" onchange="S.settings.defaultDay=+this.value;save()"></label>
+  </div>
+  <h3 style="margin-top:14px">Sócios (${s.socios.length}) — a divisão é ÷${s.socios.length}</h3>
+  <table><tbody>${s.socios.map((x,i)=>`<tr><td><input class="in" value="${esc(x.name)}" onchange="S.settings.socios[${i}].name=this.value;save()"></td>
+    <td style="width:60px"><button class="btn danger sm" onclick="delSocio('${x.id}')">remover</button></td></tr>`).join("")}</tbody></table>
+  <button class="btn sec sm" style="margin-top:10px" onclick="addSocio()">+ Adicionar sócio</button></div>
+  <div class="panel"><h3>Dados & nuvem</h3>
+   <p class="muted">Modo atual: <b>${CLOUD?"nuvem (login + compartilhado)":"local (só neste navegador)"}</b>. Para login dos sócios em computadores diferentes, ative a nuvem seguindo o guia de configuração (Supabase).</p>
+   <button class="btn sec" onclick="exportJSON()">⬇️ Backup (JSON)</button>
+   <label class="btn sec" style="display:inline-block"><input type="file" accept=".json" style="display:none" onchange="importJSON(this.files[0])">⬆️ Restaurar backup</label>
+  </div>`;
+}
+function addSocio(){S.settings.socios.push({id:uid(),name:"Novo sócio"});save();}
+function delSocio(id){if(S.settings.socios.length<=1)return;if(!confirm("Remover sócio?"))return;S.settings.socios=S.settings.socios.filter(x=>x.id!==id);save();}
+
+/* ============ EXPORT / IMPORT ============ */
+function exportJSON(){dl("guto_backup.json",JSON.stringify(S,null,2),"application/json");}
+function importJSON(file){const r=new FileReader();r.onload=()=>{try{S=JSON.parse(r.result);save();alert("Backup restaurado.");}catch(e){alert("Arquivo inválido.");}};r.readAsText(file);}
+function exportCSV(){
+  let rows=[["Mes","Venc","Descricao","Tipo","Periodicidade","Classe","Valor","Parcela","Metodo","Status"]];
+  for(let m=0;m<12;m++)occMonth(m).forEach(o=>rows.push([MA[m],String(o.cost.dia||5).padStart(2,"0")+"/"+String(m+1).padStart(2,"0"),
+    o.cost.desc,o.cost.tipo,o.cost.periodicidade,o.cost.classe,o.value.toFixed(2),o.parcela,o.cost.metodo,o.pago?"Pago":"A pagar"]));
+  dl("guto_extrato_"+S.settings.year+".csv",rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(";")).join("\n"),"text/csv");
+}
+function dl(name,content,type){const b=new Blob([content],{type});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();}
+
+/* ============ UTIL / MODAL ============ */
+function esc(s){return String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function showModal(html){let o=document.createElement("div");o.className="ov";o.id="ov";o.innerHTML=`<div class="modal">${html}</div>`;o.onclick=e=>{if(e.target===o)closeModal();};document.body.appendChild(o);}
+function closeModal(){const o=document.getElementById("ov");if(o)o.remove();}
+
+/* ============ START ============ */
+if(CLOUD){
+  const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+  sc.onload=boot;document.head.appendChild(sc);
+}else{boot();}
+</script>
+</body>
+</html>
