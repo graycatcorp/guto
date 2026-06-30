@@ -144,7 +144,7 @@ select.in option{background:var(--panel)}
     <div class="guto-logo">GUTO</div>
     <p>Terminal Financeiro & Contábil</p>
     <div id="cloudLogin" class="hidden">
-      <label class="fld"><span>Operador</span><input id="liEmail" class="in" type="email" placeholder="operador@graycat" autocomplete="username"></label>
+      <label class="fld"><span>Operador (e-mail)</span><input id="liEmail" class="in" type="email" placeholder="voce@empresa.com" autocomplete="username"></label>
       <label class="fld"><span>Senha</span><input id="liPass" class="in" type="password" autocomplete="current-password"></label>
       <div style="display:flex;gap:8px">
         <button class="btn" style="flex:1" onclick="cloudSignIn()">Entrar</button>
@@ -322,15 +322,22 @@ function renderWhoPick(){
   adm.onclick=()=>{currentUser={id:"admin",name:"Empresa"}; enter();};
   w.appendChild(adm);
 }
+function readCreds(){
+  const email=(liEmail.value||"").trim(), password=liPass.value||"";
+  if(!email||!password){ liMsg.textContent="Informe o operador (e-mail) e a senha."; return null; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ liMsg.textContent="O operador deve ser um e-mail válido (ex.: voce@empresa.com)."; return null; }
+  if(password.length<6){ liMsg.textContent="A senha precisa ter ao menos 6 caracteres."; return null; }
+  liMsg.textContent=""; return {email,password};
+}
 async function cloudSignIn(){
-  const email=liEmail.value, password=liPass.value;
-  const {data,error}=await sb.auth.signInWithPassword({email,password});
+  const cr=readCreds(); if(!cr) return;
+  const {data,error}=await sb.auth.signInWithPassword(cr);
   if(error){liMsg.textContent=error.message;return;}
-  currentUser={id:data.user.id,name:email,email}; await enter();
+  currentUser={id:data.user.id,name:cr.email,email:cr.email}; await enter();
 }
 async function cloudSignUp(){
-  const email=liEmail.value, password=liPass.value;
-  const {error}=await sb.auth.signUp({email,password});
+  const cr=readCreds(); if(!cr) return;
+  const {error}=await sb.auth.signUp(cr);
   liMsg.textContent = error? error.message : "Conta criada! Confirme o e-mail (se exigido) e clique em Entrar.";
 }
 async function enter(){
