@@ -22,6 +22,14 @@ Ver também `CLAUDE.md` (contexto base do projeto).
 >   com receita e saldo. `migrate()` cobre estados salvos antes desta versão. Validado headless.
 > - Sessão anterior: tema vintage anos 60/70 + logo circular + pesquisa de integração bancária (Inter).
 
+> Atualização (2026-08-02): **edição e exclusão por mês nos Extratos.**
+> - Em mês aberto, cada saída/entrada ganhou ações para editar somente aquela competência ou excluí-la
+>   apenas daquele mês, sem alterar o item recorrente do Cadastro e sem afetar outros meses.
+> - Ajustes mensais permitem mudar descrição, valor/data, categoria/classe/método (saídas) e forma de
+>   recebimento (entradas). Itens ajustados ficam identificados e o ajuste pode ser desfeito.
+> - Exclusões mensais ficam numa lista ao fim dos Extratos e podem ser restauradas. Mês fechado mantém
+>   todas essas ações bloqueadas.
+
 ---
 
 ## 1. No ar / repositório

@@ -232,10 +232,10 @@ function seed(){
       c("Meta Business","Mkt","Mensal","Fixo",120,"Jun","Indeterminado","À vista",0,5,"Cartão de crédito","Assinatura/verificação Meta."),
       c("TFF Prefeitura (alvará)","impostos","Anual","Fixo",1456,"Jun","","À vista",0,10,"Pix","Taxa anual. Conferir mês real."),
     ],
-    payments:{},  // "costId|m": {pago:bool, valorReal:num|null}
+    payments:{},  // "costId|m": {pago, valorReal, override:{...}, excluded} (estado/exceção mensal)
     aportes:{},   // "socioId|m": {feito:bool, data:"YYYY-MM-DD"}  (aporte OU retirada de lucro)
     revenues:[],  // receitas previstas/recorrentes
-    receipts:{},  // "revId|m": {recebido:bool, valorReal:num|null}
+    receipts:{},  // "revId|m": {recebido, valorReal, override:{...}, excluded} (estado/exceção mensal)
     accounts:[],  // contas/instituições (instituição, tipo, saldo manual)
     closures:{}   // "<ano>-<m>": {closed:bool, at:"YYYY-MM-DD", by:"nome"}  (trava de fechamento)
   };
@@ -271,10 +271,15 @@ function occMonth(m){ // ocorrências do mês m (0-11)
     if(!appear) continue;
     const pkey=k.id+"|"+m;
     const pay=S.payments[pkey]||{};
-    const isVar=k.classe==="Variável";
+    if(pay.excluded) continue;
+    const override=pay.override&&typeof pay.override==="object"?pay.override:{};
+    const cost=Object.assign({},k,override);
+    if(Object.prototype.hasOwnProperty.call(override,"valor")) base=Number(override.valor)||0;
+    const isVar=cost.classe==="Variável";
     const hasReal=pay.valorReal!=null && pay.valorReal!=="";
     const value = (isVar && hasReal)? Number(pay.valorReal):base;
-    out.push({cost:k, key:pkey, value, base, parcela:parc, pago:!!pay.pago,
+    out.push({cost, source:k, key:pkey, value, base, parcela:parc, pago:!!pay.pago,
+      adjusted:Object.keys(override).length>0,
       preview:isVar && !hasReal, valorReal: hasReal?Number(pay.valorReal):null});
   }
   return out;
@@ -299,9 +304,14 @@ function revOccMonth(m){ // ocorrências de receita do mês m (0-11)
     }
     if(!appear) continue;
     const rkey=k.id+"|"+m, rc=S.receipts[rkey]||{};
+    if(rc.excluded) continue;
+    const override=rc.override&&typeof rc.override==="object"?rc.override:{};
+    const rev=Object.assign({},k,override);
+    if(Object.prototype.hasOwnProperty.call(override,"valor")) base=Number(override.valor)||0;
     const hasReal=rc.valorReal!=null && rc.valorReal!=="";
     const value=hasReal?Number(rc.valorReal):base;
-    out.push({rev:k, key:rkey, value, base, recebido:!!rc.recebido,
+    out.push({rev, source:k, key:rkey, value, base, recebido:!!rc.recebido,
+      adjusted:Object.keys(override).length>0,
       preview:!rc.recebido && !hasReal, valorReal:hasReal?Number(rc.valorReal):null});
   }
   return out;
@@ -681,18 +691,20 @@ function vExt(){
   ${lock?`<div class="banner">🔒 ${MF[m]} está <b>fechado</b> — lançamentos travados. Reabra em <b>Resultado &amp; Fechamento</b> para editar.</div>`:""}
   <div class="panel"><h3>↓ Saídas (custos) — ${MF[m]} <span class="pill">total ${fmt(tot)}</span></h3>
   <div style="overflow:auto">
-  <table><thead><tr><th>Venc.</th><th>Descrição</th><th>Tipo</th><th>Classe</th><th class="r">Valor</th><th>Parc.</th><th>Método</th><th>Valor real</th><th>Pago?</th></tr></thead><tbody>
+  <table><thead><tr><th>Venc.</th><th>Descrição</th><th>Tipo</th><th>Classe</th><th class="r">Valor</th><th>Parc.</th><th>Método</th><th>Valor real</th><th>Pago?</th><th></th></tr></thead><tbody>
   ${occ.length?occ.map(o=>{
     const dia=String(o.cost.dia||5).padStart(2,"0");
     return `<tr>
     <td>${dia}/${String(m+1).padStart(2,"0")}</td>
-    <td><b>${esc(o.cost.desc)}</b></td><td><span class="pill">${o.cost.tipo}</span></td>
+    <td><b>${esc(o.cost.desc)}</b>${o.adjusted?' <span class="tag prev">ajuste do mês</span>':""}</td><td><span class="pill">${o.cost.tipo}</span></td>
     <td><span class="tag ${o.cost.classe==="Fixo"?"fix":"var"}">${o.cost.classe}</span></td>
     <td class="r">${fmt(o.value)} ${o.preview?'<span class="tag prev">prévia</span>':""}</td>
     <td>${o.parcela||"—"}</td><td>${o.cost.metodo}</td>
     <td>${o.cost.classe==="Variável"?`<input class="in" style="width:110px;padding:5px" type="number" step="0.01" placeholder="real" value="${o.valorReal??""}" ${lock?"disabled":""} onchange="setReal('${o.key}',this.value)">`:'<span class="muted">—</span>'}</td>
-    <td><input type="checkbox" class="chk" ${o.pago?"checked":""} ${lock?"disabled":""} onchange="setPago('${o.key}',this.checked)"></td></tr>`;}).join("")
-    :`<tr><td colspan="9" class="muted" style="padding:24px;text-align:center">Nenhum lançamento com esses filtros.</td></tr>`}
+    <td><input type="checkbox" class="chk" ${o.pago?"checked":""} ${lock?"disabled":""} onchange="setPago('${o.key}',this.checked)"></td>
+    <td style="white-space:nowrap"><button class="btn sec sm" ${lock?"disabled":""} onclick="editMonthCost('${o.key}',${m})">editar</button>
+      <button class="btn danger sm" ${lock?"disabled":""} onclick="delMonthCost('${o.key}',${m})">excluir</button></td></tr>`;}).join("")
+    :`<tr><td colspan="10" class="muted" style="padding:24px;text-align:center">Nenhum lançamento com esses filtros.</td></tr>`}
   </tbody></table></div></div>
   ${vExtEntradas(m)}`;
 }
@@ -700,23 +712,122 @@ function vExtEntradas(m){
   const rocc=revOccMonth(m); const lock=isClosed(m);
   return `<div class="panel"><h3>↑ Entradas (receitas) — ${MF[m]} <span class="pill">recebido ${fmt(revReceived(m))} / previsto ${fmt(revMonthTotal(m))}</span></h3>
   <div style="overflow:auto">
-  <table><thead><tr><th>Receb.</th><th>Descrição</th><th class="r">Previsto</th><th>Forma</th><th>Valor recebido</th><th>Recebido?</th></tr></thead><tbody>
+  <table><thead><tr><th>Receb.</th><th>Descrição</th><th class="r">Previsto</th><th>Forma</th><th>Valor recebido</th><th>Recebido?</th><th></th></tr></thead><tbody>
   ${rocc.length?rocc.map(o=>{
     const dia=String(o.rev.dia||5).padStart(2,"0");
     return `<tr>
     <td>${dia}/${String(m+1).padStart(2,"0")}</td>
-    <td><b>${esc(o.rev.desc)}</b></td>
+    <td><b>${esc(o.rev.desc)}</b>${o.adjusted?' <span class="tag prev">ajuste do mês</span>':""}</td>
     <td class="r in-up">${fmt(o.base)}</td>
     <td>${o.rev.metodo}</td>
     <td><input class="in" style="width:120px;padding:5px" type="number" step="0.01" placeholder="real" value="${o.valorReal??""}" ${lock?"disabled":""} onchange="setRevReal('${o.key}',this.value)"></td>
-    <td><input type="checkbox" class="chk" ${o.recebido?"checked":""} ${lock?"disabled":""} onchange="setReceb('${o.key}',this.checked)"></td></tr>`;}).join("")
-    :`<tr><td colspan="6" class="muted" style="padding:24px;text-align:center">Nenhuma receita prevista neste mês. Cadastre em <b>Cadastro → Receitas</b>.</td></tr>`}
-  </tbody></table></div></div>`;
+    <td><input type="checkbox" class="chk" ${o.recebido?"checked":""} ${lock?"disabled":""} onchange="setReceb('${o.key}',this.checked)"></td>
+    <td style="white-space:nowrap"><button class="btn sec sm" ${lock?"disabled":""} onclick="editMonthRev('${o.key}',${m})">editar</button>
+      <button class="btn danger sm" ${lock?"disabled":""} onclick="delMonthRev('${o.key}',${m})">excluir</button></td></tr>`;}).join("")
+    :`<tr><td colspan="7" class="muted" style="padding:24px;text-align:center">Nenhuma receita prevista neste mês. Cadastre em <b>Cadastro → Receitas</b>.</td></tr>`}
+  </tbody></table></div></div>${vMonthExclusions(m)}`;
 }
 function setPago(key,v){ S.payments[key]=Object.assign({},S.payments[key],{pago:v}); save(); }
 function setReal(key,v){ S.payments[key]=Object.assign({},S.payments[key],{valorReal:v===""?null:Number(v)}); save(); }
 function setReceb(key,v){ S.receipts[key]=Object.assign({},S.receipts[key],{recebido:v}); save(); }
 function setRevReal(key,v){ S.receipts[key]=Object.assign({},S.receipts[key],{valorReal:v===""?null:Number(v)}); save(); }
+
+/* ---- ajustes que valem somente para a competência selecionada ---- */
+function editMonthCost(key,m){
+  if(isClosed(m))return alert("Reabra o mês antes de editar lançamentos.");
+  const o=occMonth(m).find(x=>x.key===key); if(!o)return;
+  const k=o.cost, opt=(arr,sel)=>arr.map(x=>`<option ${x===sel?"selected":""}>${x}</option>`).join("");
+  showModal(`<h2>Editar saída — somente ${MF[m]}</h2>
+  <p class="muted" style="margin-top:-8px">Este ajuste não altera o Cadastro nem os outros meses.</p>
+  <div class="formgrid">
+    <label class="fld" style="grid-column:1/3"><span>Descrição</span><input id="mo_desc" class="in" value="${esc(k.desc)}"></label>
+    <label class="fld"><span>Tipo do gasto</span><select id="mo_tipo" class="in">${opt(TIPOS,k.tipo)}</select></label>
+    <label class="fld"><span>Classe</span><select id="mo_cls" class="in">${opt(["Fixo","Variável"],k.classe)}</select></label>
+    <label class="fld"><span>Valor previsto neste mês (R$)</span><input id="mo_val" class="in" type="number" step="0.01" value="${o.base}"></label>
+    <label class="fld"><span>Dia de vencimento</span><input id="mo_dia" class="in" type="number" min="1" max="28" value="${k.dia||5}"></label>
+    <label class="fld"><span>Método de pagamento</span><select id="mo_met" class="in">${opt(METODOS,k.metodo)}</select></label>
+    <label class="fld" style="grid-column:1/3"><span>Observações</span><textarea id="mo_obs" class="in" rows="2">${esc(k.obs)}</textarea></label>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+    ${o.adjusted?`<button class="btn danger" style="margin-right:auto" onclick="resetMonthCost('${key}',${m})">Desfazer ajuste</button>`:""}
+    <button class="btn sec" onclick="closeModal()">Cancelar</button>
+    <button class="btn" onclick="saveMonthCost('${key}',${m})">Salvar só em ${MF[m]}</button></div>`);
+}
+function saveMonthCost(key,m){
+  if(isClosed(m))return alert("Reabra o mês antes de editar lançamentos.");
+  const g=x=>document.getElementById(x).value;
+  const override={desc:g("mo_desc").trim(),tipo:g("mo_tipo"),classe:g("mo_cls"),
+    valor:Number(g("mo_val"))||0,dia:Number(g("mo_dia"))||5,metodo:g("mo_met"),obs:g("mo_obs").trim()};
+  if(!override.desc){alert("Informe a descrição.");return;}
+  S.payments[key]=Object.assign({},S.payments[key],{override});
+  closeModal();save();
+}
+function delMonthCost(key,m){
+  if(isClosed(m))return alert("Reabra o mês antes de excluir lançamentos.");
+  if(!confirm(`Excluir esta saída somente de ${MF[m]}? O Cadastro e os outros meses não serão alterados.`))return;
+  S.payments[key]=Object.assign({},S.payments[key],{excluded:true});save();
+}
+function resetMonthCost(key,m){
+  if(isClosed(m))return alert("Reabra o mês antes de editar lançamentos.");
+  if(!confirm(`Desfazer o ajuste desta saída em ${MF[m]} e voltar aos dados do Cadastro?`))return;
+  if(S.payments[key])delete S.payments[key].override;
+  closeModal();save();
+}
+function editMonthRev(key,m){
+  if(isClosed(m))return alert("Reabra o mês antes de editar lançamentos.");
+  const o=revOccMonth(m).find(x=>x.key===key); if(!o)return;
+  const k=o.rev, opt=(arr,sel)=>arr.map(x=>`<option ${x===sel?"selected":""}>${x}</option>`).join("");
+  showModal(`<h2>Editar entrada — somente ${MF[m]}</h2>
+  <p class="muted" style="margin-top:-8px">Este ajuste não altera o Cadastro nem os outros meses.</p>
+  <div class="formgrid">
+    <label class="fld" style="grid-column:1/3"><span>Descrição</span><input id="mr_desc" class="in" value="${esc(k.desc)}"></label>
+    <label class="fld"><span>Valor previsto neste mês (R$)</span><input id="mr_val" class="in" type="number" step="0.01" value="${o.base}"></label>
+    <label class="fld"><span>Dia previsto de recebimento</span><input id="mr_dia" class="in" type="number" min="1" max="28" value="${k.dia||5}"></label>
+    <label class="fld"><span>Forma de recebimento</span><select id="mr_met" class="in">${opt(RMETODOS,k.metodo)}</select></label>
+    <label class="fld" style="grid-column:1/3"><span>Observações</span><textarea id="mr_obs" class="in" rows="2">${esc(k.obs)}</textarea></label>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+    ${o.adjusted?`<button class="btn danger" style="margin-right:auto" onclick="resetMonthRev('${key}',${m})">Desfazer ajuste</button>`:""}
+    <button class="btn sec" onclick="closeModal()">Cancelar</button>
+    <button class="btn" onclick="saveMonthRev('${key}',${m})">Salvar só em ${MF[m]}</button></div>`);
+}
+function saveMonthRev(key,m){
+  if(isClosed(m))return alert("Reabra o mês antes de editar lançamentos.");
+  const g=x=>document.getElementById(x).value;
+  const override={desc:g("mr_desc").trim(),valor:Number(g("mr_val"))||0,
+    dia:Number(g("mr_dia"))||5,metodo:g("mr_met"),obs:g("mr_obs").trim()};
+  if(!override.desc){alert("Informe a descrição.");return;}
+  S.receipts[key]=Object.assign({},S.receipts[key],{override});
+  closeModal();save();
+}
+function delMonthRev(key,m){
+  if(isClosed(m))return alert("Reabra o mês antes de excluir lançamentos.");
+  if(!confirm(`Excluir esta entrada somente de ${MF[m]}? O Cadastro e os outros meses não serão alterados.`))return;
+  S.receipts[key]=Object.assign({},S.receipts[key],{excluded:true});save();
+}
+function resetMonthRev(key,m){
+  if(isClosed(m))return alert("Reabra o mês antes de editar lançamentos.");
+  if(!confirm(`Desfazer o ajuste desta entrada em ${MF[m]} e voltar aos dados do Cadastro?`))return;
+  if(S.receipts[key])delete S.receipts[key].override;
+  closeModal();save();
+}
+function vMonthExclusions(m){
+  const costs=S.costs.filter(k=>{const p=S.payments[k.id+"|"+m];return p&&p.excluded;});
+  const revs=S.revenues.filter(k=>{const r=S.receipts[k.id+"|"+m];return r&&r.excluded;});
+  if(!costs.length&&!revs.length)return "";
+  const lock=isClosed(m);
+  const rows=costs.map(k=>`<tr><td>Saída</td><td>${esc(k.desc)}</td><td><button class="btn sec sm" ${lock?"disabled":""} onclick="restoreMonthItem('cost','${k.id}|${m}',${m})">restaurar</button></td></tr>`)
+    .concat(revs.map(k=>`<tr><td>Entrada</td><td>${esc(k.desc)}</td><td><button class="btn sec sm" ${lock?"disabled":""} onclick="restoreMonthItem('rev','${k.id}|${m}',${m})">restaurar</button></td></tr>`)).join("");
+  return `<div class="panel"><h3>Lançamentos excluídos somente de ${MF[m]}</h3>
+    <p class="muted" style="margin-top:-6px">Eles continuam no Cadastro e nos demais meses.</p>
+    <table><thead><tr><th>Mov.</th><th>Descrição original</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function restoreMonthItem(type,key,m){
+  if(isClosed(m))return alert("Reabra o mês antes de restaurar lançamentos.");
+  const store=type==="cost"?S.payments:S.receipts;
+  if(store[key])delete store[key].excluded;
+  save();
+}
 
 /* ============ RESULTADO / FECHAMENTO ============ */
 function vRes(){
