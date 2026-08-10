@@ -304,7 +304,7 @@ function seedProductPortfolio(){
   const reviewed="2026-08-10";
   const common={reviewed,confidence:"Média",owner:"Produto + Finanças",currency:"BRL"};
   return {
-    version:3,
+    version:4,
     settings:{usdBrl:5.50,users:1000,generations:1000,simulationMode:"manual",cohort:"mixed",updatedAt:reviewed,
       sources:[
         {name:"Cloudflare Workers AI · pricing",url:"https://developers.cloudflare.com/workers-ai/platform/pricing/"},
@@ -318,20 +318,18 @@ function seedProductPortfolio(){
         id:"chat",icon:"💬",name:"Chat",stage:"Em produção",thesis:"É a porta de entrada e o maior motor de hábito. Melhorar qualidade e latência aumenta retenção de todo o portfólio e cria distribuição orgânica para as demais features.",
         deliverables:[
           {id:"chat_grounded",name:"Resposta com pesquisa e fontes",unit:"resposta",costs:[{provider:"Google Vertex AI",service:"Síntese, extração e grounding",driver:"generation",unitCost:.018,freeQuota:0},{provider:"Google Cloud Functions",service:"Orquestração do pipeline",driver:"generation",unitCost:.003,freeQuota:200},{provider:"Firestore",service:"Histórico, estado e telemetria",driver:"generation",unitCost:.002,freeQuota:1000}]},
-          {id:"chat_offline",name:"Resposta local / offline",unit:"resposta",costs:[{provider:"Device local",service:"Inferência Tupico via llama.cpp",driver:"generation",unitCost:0,freeQuota:0},{provider:"Cloudflare R2",service:"Distribuição autenticada do modelo",driver:"user",unitCost:.002,freeQuota:1000}]},
+          {id:"chat_offline",name:"Resposta local / offline",unit:"resposta",costs:[{provider:"Device local",service:"Modelo Tupico embarcado no app + inferência via llama.cpp",driver:"generation",unitCost:0,freeQuota:0}]},
           {id:"chat_artifact",name:"Artefato textual estruturado",unit:"artefato",costs:[{provider:"Google Vertex AI",service:"Estruturação e redação",driver:"generation",unitCost:.012,freeQuota:0},{provider:"Firebase Storage",service:"Persistência do artefato",driver:"generation",unitCost:.002,freeQuota:500},{provider:"Firestore",service:"Metadados e vínculo com a conversa",driver:"generation",unitCost:.001,freeQuota:1000}]}
         ],
         providers:[
           {name:"Google Cloud",service:"Firebase Auth, Firestore, Cloud Functions/Run e Storage",endpoint:"southamerica-east1 / projeto tuphamai-graycat",status:"Ativo",dependency:"Identidade, persistência, jobs duráveis e orquestração"},
           {name:"Google",service:"Vertex AI · Gemini 2.5 Flash-Lite",endpoint:"us-central1-aiplatform.googleapis.com/...:generateContent",status:"Ativo",dependency:"Extração, planejamento, síntese e respostas aterradas"},
-          {name:"Cloudflare",service:"Workers + R2",endpoint:"tupham-model-auth / bucket tupham-models",status:"Ativo",dependency:"Distribuição autenticada do modelo offline GGUF"},
-          {name:"Device local",service:"Tupico / llama.cpp",endpoint:"Execução no aparelho",status:"Ativo",dependency:"Chat offline e redução de custo marginal"},
+          {name:"Device local",service:"Tupico embarcado / llama.cpp",endpoint:"Asset GGUF incluído no bundle do app",status:"Ativo",dependency:"Chat offline sem download, Worker ou storage externo do modelo"},
           {name:"Amazon",service:"Bedrock",endpoint:"LLM_PROVIDER=bedrock",status:"Stub",dependency:"Seam de failover existe no código, mas o cliente ainda não está implementado"},
           {name:"Fontes abertas",service:"Wikidata, Wikipedia, Open-Meteo, Frankfurter, BCB, CoinGecko, Stooq/brapi",endpoint:"Backend Bridge + busca no aparelho",status:"Ativo",dependency:"Grounding e dados estruturados; disponibilidade externa"}
         ],
         fixed:[
           {name:"Rateio Firebase/Cloud Run/observabilidade",provider:"Google Cloud",amount:22,basis:"Estimativa",note:"Parcela da infraestrutura comum atribuída ao Chat."},
-          {name:"R2 do modelo offline + Worker",provider:"Cloudflare",amount:8,basis:"Estimativa",note:"Revisar com Storage e egress reais do dashboard."},
           {name:"Reserva de monitoramento e logs",provider:"Google Cloud",amount:5,basis:"Estimativa",note:"Proteção contra cauda de custo e incidentes."}
         ],
         variable:[
@@ -617,6 +615,18 @@ function migrate(){ // garante campos novos em estados salvos antes desta versã
     S.products.version=2;
   }
   if((Number(S.products.version)||0)<3) S.products.version=3;
+  if((Number(S.products.version)||0)<4){
+    const chat=(S.products.features||[]).find(x=>x.id==="chat"),freshChat=productDefaults.features.find(x=>x.id==="chat");
+    if(chat&&freshChat){
+      const offline=chat.deliverables&&chat.deliverables.find(x=>x.id==="chat_offline"),freshOffline=freshChat.deliverables.find(x=>x.id==="chat_offline");
+      if(offline&&freshOffline) offline.costs=freshOffline.costs;
+      chat.providers=(chat.providers||[]).filter(x=>x.name!=="Cloudflare");
+      const deviceIndex=chat.providers.findIndex(x=>x.name==="Device local"),freshDevice=freshChat.providers.find(x=>x.name==="Device local");
+      if(freshDevice){if(deviceIndex>=0)chat.providers[deviceIndex]=freshDevice;else chat.providers.push(freshDevice);}
+      chat.fixed=(chat.fixed||[]).filter(x=>x.provider!=="Cloudflare"&&!String(x.name||"").includes("R2"));
+    }
+    S.products.version=4;
+  }
   if(!S.payments) S.payments={};
   if(!S.aportes) S.aportes={};
   if(!S.closures || typeof S.closures!=="object") S.closures={};
@@ -1261,7 +1271,7 @@ function delAcc(id){ if(!confirm("Excluir esta conta?"))return; S.accounts=S.acc
 const PROD_USERS=[10,100,1000,10000,100000,1000000];
 const PROD_GENS=[10,100,1000,10000,100000];
 const PROD_SIMULATION={
-  chat:{activation:.70,opsPerActive:16,label:"uso recorrente e porta de entrada"},
+  chat:{activation:.50,opsPerActive:10,label:"uso recorrente com ativação conservadora"},
   documentos:{activation:.22,opsPerActive:2,label:"necessidade pontual de alta intenção"},
   estuda:{activation:.28,opsPerActive:8,label:"recorrência semanal de estudo"},
   musica:{activation:.10,opsPerActive:1.2,label:"criação ocasional e compartilhável"},
