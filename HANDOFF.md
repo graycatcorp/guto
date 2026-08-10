@@ -26,7 +26,7 @@ Ver também `CLAUDE.md` (contexto base do projeto).
 > - Novo chassi comum para Chat, Documentos, Estuda, Música, Design e Esportes.
 > - Cenários mensais de 10/100/1.000/10.000/100.000 operações × 10/100/1.000/10.000/100.000/1.000.000 usuários ativos.
 > - Entregas consolidadas em artefatos financeiros; cada item exibe custo efetivo dinâmico e abre a composição por provedor e serviço.
-> - Fontes de receita no mesmo nível visual das entregas e gráfico de saldo líquido por volume de operações e base ativa, com tabela exata preservada para auditoria.
+> - Fontes de receita no mesmo nível visual das entregas e gráfico de linhas com checkpoints de saldo líquido por volume de operações e base ativa, com tabela exata preservada para auditoria.
 > - Alternância de coorte Gratuitos (só ads), Base mista (ads + premium atribuído) e Premium (sem ads).
 > - Custos fixos, custos unitários, cotas grátis e receitas unitárias são editáveis e persistem em `S.products`.
 > - Cada feature documenta entregas, provedores/endpoints, dependências, riscos, próximas alavancas, payback, break-even e tese para conselho.
