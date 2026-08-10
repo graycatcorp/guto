@@ -27,7 +27,9 @@ Ver também `CLAUDE.md` (contexto base do projeto).
 > - Cenários mensais de 10/100/1.000/10.000/100.000 operações × 10/100/1.000/10.000/100.000/1.000.000 usuários ativos.
 > - Entregas consolidadas em artefatos financeiros; cada item exibe custo efetivo dinâmico e abre a composição por provedor e serviço.
 > - Fontes de receita no mesmo nível visual das entregas e gráfico de linhas comparando receita × custo por volume de operações e base ativa, com saldo líquido exato preservado em tabela para auditoria.
-> - Seletores de cenário ficam no topo em quatro widgets iguais: base, operações, simulação e coorte; o banner introdutório foi removido.
+> - Seletores de cenário ficam no topo em quatro widgets iguais: base, operações e simulação usam barras de arraste; a coorte mantém botões segmentados.
+> - Cards de feature mostram somente saldo + marcador verde/vermelho, enquanto os KPIs consolidados usam carrossel horizontal com arraste e setas, sem quebra interna de texto.
+> - O banner de tese foi removido; entregas e receitas ficaram mais limpas e usam `+` ao lado do valor para indicar expansão por provedor/serviço.
 > - O gráfico oferece atalhos próprios para feature, base de usuários e operações.
 > - O modo `Mundo simulado` recebe a base total Tupham e aplica taxa de ativação + operações mensais por ativo específicas de cada feature, exibindo toda a cadeia de premissas e recalculando o portfólio feature a feature.
 > - Chat usa hipótese conservadora de 50% de ativação e 10 gerações mensais por ativo. O modelo offline vem embarcado no app; Worker/R2 da Cloudflare foram removidos do centro de custo do Chat.
