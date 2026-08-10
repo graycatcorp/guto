@@ -29,6 +29,7 @@ Ver também `CLAUDE.md` (contexto base do projeto).
 > - Fontes de receita no mesmo nível visual das entregas e gráfico de linhas comparando receita × custo por volume de operações e base ativa, com saldo líquido exato preservado em tabela para auditoria.
 > - Seletores de cenário ficam no topo em quatro widgets iguais: base, operações e simulação usam barras de arraste; a coorte mantém botões segmentados.
 > - Cards de feature mostram somente saldo + marcador verde/vermelho, enquanto os KPIs consolidados usam carrossel horizontal com arraste e setas, sem quebra interna de texto.
+> - Seletores de feature e KPIs ficam dentro de um único container de resumo econômico, funcionando como separador entre o console de premissas e os painéis analíticos.
 > - O banner de tese foi removido; entregas e receitas ficaram mais limpas e usam `+` ao lado do valor para indicar expansão por provedor/serviço.
 > - O gráfico oferece atalhos próprios para feature, base de usuários e operações.
 > - O modo `Mundo simulado` recebe a base total Tupham e aplica taxa de ativação + operações mensais por ativo específicas de cada feature, exibindo toda a cadeia de premissas e recalculando o portfólio feature a feature.
