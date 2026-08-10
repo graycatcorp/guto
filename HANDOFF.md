@@ -22,6 +22,15 @@ Ver também `CLAUDE.md` (contexto base do projeto).
 >   com receita e saldo. `migrate()` cobre estados salvos antes desta versão. Validado headless.
 > - Sessão anterior: tema vintage anos 60/70 + logo circular + pesquisa de integração bancária (Inter).
 
+> Atualização (2026-08-10): **aba Produtos / centros de custo por feature.**
+> - Novo chassi comum para Chat, Documentos, Estuda, Música, Design e Esportes.
+> - Cenários mensais de 10/100/1.000 operações × 10/100/1.000/10.000/100.000 MAU.
+> - Alternância de coorte Gratuitos (só ads), Base mista (ads + premium atribuído) e Premium (sem ads).
+> - Custos fixos, custos unitários, cotas grátis e receitas unitárias são editáveis e persistem em `S.products`.
+> - Cada feature documenta entregas, provedores/endpoints, dependências, riscos, próximas alavancas, payback, break-even e tese para conselho.
+> - Design inclui explicitamente o pipeline da branch `codex/chat-image-generation-workers-ai`: Cloudflare Workers AI / FLUX.2 klein 4B + diretor Vertex + Firebase Functions/Storage.
+> - Valores iniciais são premissas identificadas como estimativa, cadastro do Guto ou tabela oficial; devem ser conciliados com faturas e telemetria antes de orçamento aprovado.
+
 > Atualização (2026-08-02): **edição e exclusão por mês nos Extratos.**
 > - Em mês aberto, cada saída/entrada ganhou ações para editar somente aquela competência ou excluí-la
 >   apenas daquele mês, sem alterar o item recorrente do Cadastro e sem afetar outros meses.

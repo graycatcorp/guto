@@ -138,6 +138,36 @@ select.in option{background:#fbf7ec}
 #localLogin>p{font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;font-size:11px;color:var(--head)!important}
 .banner{background:rgba(200,154,60,.16);border:1px solid rgba(200,154,60,.6);color:#8a6418;padding:10px 14px;border-radius:2px;font-family:var(--mono);font-size:11px;margin-bottom:16px}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px}
+/* ===== PRODUTOS / CENTROS DE CUSTO ===== */
+.product-hero{background:linear-gradient(135deg,rgba(47,110,106,.13),rgba(200,154,60,.12));border:2px solid var(--ink);padding:20px;margin-bottom:18px;box-shadow:6px 6px 0 rgba(44,35,23,.13)}
+.product-hero h2{font-family:var(--disp);margin:0 0 7px;font-size:24px;color:var(--head)}
+.product-hero p{margin:0;max-width:850px;line-height:1.45}
+.product-tabs{display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:9px;margin-bottom:18px}
+.product-tab{background:var(--panel);border:1.5px solid var(--ink);padding:12px 10px;text-align:left;box-shadow:3px 3px 0 rgba(44,35,23,.14);color:var(--ink);min-width:0;overflow:hidden}
+.product-tab.on{background:var(--cyan);color:var(--bg2);transform:translate(1px,1px);box-shadow:2px 2px 0 var(--ink)}
+.product-tab b{display:block;font-size:13px}.product-tab small{display:block;margin-top:4px;opacity:.8;font-family:var(--mono);font-size:10px}
+.scenario-bar{display:grid;grid-template-columns:1fr 1fr auto;gap:14px;align-items:end}
+.scenario-bar label{margin:0}.scenario-bar .btn{margin-bottom:1px}
+.range-buttons{display:flex;gap:5px;flex-wrap:wrap}
+.range-buttons button{border:1px solid var(--ink);background:var(--bg2);padding:6px 9px;font-family:var(--mono);font-size:11px;color:var(--ink)}
+.range-buttons button.on{background:var(--amber);font-weight:700}
+.kpi-note{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:5px;line-height:1.3}
+.status-stamp{display:inline-block;border:2px solid;padding:4px 10px;font-family:var(--disp);font-size:12px;letter-spacing:.6px;transform:rotate(-1deg)}
+.status-stamp.pos{color:var(--green);border-color:var(--green)}.status-stamp.neg{color:var(--red);border-color:var(--red)}.status-stamp.zero{color:#8a6418;border-color:var(--amber)}
+.chassis-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+.mini-list{display:grid;gap:8px}.mini-item{border-left:4px solid var(--cyan);background:var(--soft);padding:9px 11px}
+.mini-item b{font-family:var(--mono);font-size:12px}.mini-item span{display:block;color:var(--muted);font-size:11px;margin-top:3px;line-height:1.35}
+.provider-row{display:grid;grid-template-columns:125px 1fr 90px;gap:10px;align-items:start;border-bottom:1px dotted var(--line);padding:10px 0}
+.provider-row:last-child{border-bottom:0}.provider-row b{font-family:var(--mono);font-size:12px}.provider-row code{font-size:10px;color:var(--cyan);overflow-wrap:anywhere}.provider-row .tag{text-align:center}
+.money-table input{width:92px;padding:5px 6px;border:1px solid var(--line);background:var(--bg2);font-family:var(--mono);text-align:right}
+.money-table select{padding:5px;border:1px solid var(--line);background:var(--bg2);font-family:var(--mono);font-size:11px}
+.source-note{font-size:11px;color:var(--muted);line-height:1.45;border-top:1px dotted var(--line);padding-top:9px;margin-top:10px}
+.matrix{min-width:730px}.matrix td,.matrix th{text-align:right;font-family:var(--mono)}.matrix td:first-child,.matrix th:first-child{text-align:left;position:sticky;left:0;background:var(--panel);z-index:1}.matrix .good{color:var(--green);background:rgba(95,125,58,.08)}.matrix .bad{color:var(--red);background:rgba(181,67,42,.07)}.matrix .neutral{color:#8a6418;background:rgba(200,154,60,.08)}
+.board-callout{border:2px solid var(--green);background:rgba(95,125,58,.09);padding:15px 17px;margin-bottom:18px}.board-callout b{font-family:var(--disp);font-size:17px;color:var(--green)}.board-callout p{margin:6px 0 0;line-height:1.45}
+.data-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;padding:3px 7px;border:1px solid var(--line);background:var(--soft)}
+@media(max-width:1050px){.product-tabs{grid-template-columns:repeat(3,1fr)}.chassis-grid{grid-template-columns:1fr}}
+@media(max-width:700px){.main{flex:0 0 calc(100vw - 64px);width:calc(100vw - 64px);max-width:calc(100vw - 64px);overflow:hidden}.wrap{width:100%;max-width:100%;padding:18px 14px;overflow:hidden}.top{padding:12px 14px;align-items:flex-start;gap:3px;flex-direction:column}.top h1{font-size:18px}.top .yr{white-space:normal}.product-hero,.panel,.cards,.chassis-grid{min-width:0;max-width:100%}.product-tabs{grid-template-columns:repeat(2,minmax(0,1fr));max-width:100%}.product-tab small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.scenario-bar{grid-template-columns:minmax(0,1fr)}.provider-row{grid-template-columns:85px minmax(0,1fr)}.provider-row .tag{grid-column:1/3;width:max-content}.money-table input{width:78px}}
+@media print{.side,.top,.scenario-bar,.product-tabs .product-tab:not(.on),button{display:none!important}.main{width:100%}.wrap{max-width:none;padding:0}.panel,.card,.product-hero{box-shadow:none;break-inside:avoid}.product-tabs{display:block}.product-tab.on{display:block!important;color:var(--ink);background:var(--panel);width:100%}.chassis-grid{grid-template-columns:1fr 1fr}body{background:#fff;font-size:11px}}
 </style>
 </head>
 <body>
@@ -174,6 +204,7 @@ select.in option{background:#fbf7ec}
       <a data-v="cad">🗂️ <span>Cadastro</span></a>
       <a data-v="ext">📑 <span>Extratos</span></a>
       <a data-v="res">💰 <span>Resultado</span></a>
+      <a data-v="prod">🧭 <span>Produtos</span></a>
       <a data-v="cont">📘 <span>Contábil / Anual</span></a>
       <a data-v="cfg">⚙️ <span>Configurações</span></a>
     </nav>
@@ -237,6 +268,7 @@ function seed(){
     revenues:[],  // receitas previstas/recorrentes
     receipts:{},  // "revId|m": {recebido, valorReal, override:{...}, excluded} (estado/exceção mensal)
     accounts:[],  // contas/instituições (instituição, tipo, saldo manual)
+    products:seedProductPortfolio(), // centros de custo por feature (premissas editáveis)
     closures:{}   // "<ano>-<m>": {closed:bool, at:"YYYY-MM-DD", by:"nome"}  (trava de fechamento)
   };
 }
@@ -250,6 +282,175 @@ function r(desc,per,valor,ini,fim,dia,met,obs,by){ // receita
 }
 function acc(inst,tipo,saldo,obs){ // conta/instituição
   return {id:uid(),inst,tipo,saldo:Number(saldo)||0,obs:obs||""};
+}
+
+/* ---- Produtos: chassi único de viabilidade por feature ----
+   Valores em BRL/mês. São premissas iniciais auditáveis — não substituem
+   faturas. O painel deixa custo unitário, quota e monetização editáveis. */
+function seedProductPortfolio(){
+  const reviewed="2026-08-10";
+  const common={reviewed,confidence:"Média",owner:"Produto + Finanças",currency:"BRL"};
+  return {
+    settings:{usdBrl:5.50,users:1000,generations:1000,cohort:"mixed",updatedAt:reviewed,
+      sources:[
+        {name:"Cloudflare Workers AI · pricing",url:"https://developers.cloudflare.com/workers-ai/platform/pricing/"},
+        {name:"Google Vertex AI · pricing",url:"https://cloud.google.com/vertex-ai/generative-ai/pricing"},
+        {name:"Google Cloud Text-to-Speech · pricing",url:"https://cloud.google.com/text-to-speech/pricing"},
+        {name:"Firebase Firestore · pricing e cotas",url:"https://firebase.google.com/docs/firestore/pricing"},
+        {name:"API-Football · planos e documentação",url:"https://www.api-football.com/documentation"}
+      ]},
+    features:[
+      Object.assign({},common,{
+        id:"chat",icon:"💬",name:"Chat",stage:"Em produção",thesis:"É a porta de entrada e o maior motor de hábito. Melhorar qualidade e latência aumenta retenção de todo o portfólio e cria distribuição orgânica para as demais features.",
+        delivered:["Conversa geral e personas","Pesquisa web com fontes e citações","Respostas estruturadas e artefatos","Continuidade de conversa e histórico","Modo offline com modelo local","Encaminhamento para Documentos, Estuda, Design e Esportes"],
+        providers:[
+          {name:"Google Cloud",service:"Firebase Auth, Firestore, Cloud Functions/Run e Storage",endpoint:"southamerica-east1 / projeto tuphamai-graycat",status:"Ativo",dependency:"Identidade, persistência, jobs duráveis e orquestração"},
+          {name:"Google",service:"Vertex AI · Gemini 2.5 Flash-Lite",endpoint:"us-central1-aiplatform.googleapis.com/...:generateContent",status:"Ativo",dependency:"Extração, planejamento, síntese e respostas aterradas"},
+          {name:"Cloudflare",service:"Workers + R2",endpoint:"tupham-model-auth / bucket tupham-models",status:"Ativo",dependency:"Distribuição autenticada do modelo offline GGUF"},
+          {name:"Device local",service:"Tupico / llama.cpp",endpoint:"Execução no aparelho",status:"Ativo",dependency:"Chat offline e redução de custo marginal"},
+          {name:"Amazon",service:"Bedrock",endpoint:"LLM_PROVIDER=bedrock",status:"Stub",dependency:"Seam de failover existe no código, mas o cliente ainda não está implementado"},
+          {name:"Fontes abertas",service:"Wikidata, Wikipedia, Open-Meteo, Frankfurter, BCB, CoinGecko, Stooq/brapi",endpoint:"Backend Bridge + busca no aparelho",status:"Ativo",dependency:"Grounding e dados estruturados; disponibilidade externa"}
+        ],
+        fixed:[
+          {name:"Rateio Firebase/Cloud Run/observabilidade",provider:"Google Cloud",amount:22,basis:"Estimativa",note:"Parcela da infraestrutura comum atribuída ao Chat."},
+          {name:"R2 do modelo offline + Worker",provider:"Cloudflare",amount:8,basis:"Estimativa",note:"Revisar com Storage e egress reais do dashboard."},
+          {name:"Reserva de monitoramento e logs",provider:"Google Cloud",amount:5,basis:"Estimativa",note:"Proteção contra cauda de custo e incidentes."}
+        ],
+        variable:[
+          {name:"Pipeline Vertex (tokens + funções)",provider:"Google",driver:"generation",unitCost:.018,freeQuota:0,basis:"Estimativa",note:"Turno online médio; varia com tokens, grounding e retries."},
+          {name:"Firestore/Storage por usuário ativo",provider:"Google Cloud",driver:"user",unitCost:.006,freeQuota:1000,basis:"Estimativa",note:"Leituras, escritas e anexos após faixa gratuita compartilhada."}
+        ],
+        revenue:[
+          {name:"Anúncio inline no histórico",provider:"Google AdMob",driver:"user",unitRevenue:.052,basis:"Estimativa",note:"Cadência real do InlineAdBubble; preencher eCPM observado."},
+          {name:"Premium atribuído ao Chat",provider:"App Store / Google Play",driver:"user",unitRevenue:.105,basis:"Estimativa",note:"ARPU líquido × conversão × rateio de valor do Chat."}
+        ],
+        risks:["Custo por turno cresce com contexto longo","Dependência regional do Vertex e quotas DSQ","Receita de anúncios oscila com fill rate/eCPM"],
+        next:["Medir tokens e custo por resposta no BigQuery","Separar chat local, web e multimodal no evento financeiro","Testar mais respostas locais antes de acionar Vertex"]
+      }),
+      Object.assign({},common,{
+        id:"documentos",icon:"📄",name:"Documentos",stage:"Em produção",thesis:"Resolve tarefas de alto valor percebido e baixa frequência. O gate de vídeo/premium já permite monetizar no momento exato de intenção, enquanto operações locais protegem margem.",
+        delivered:["Resumo de PDF (até 5 páginas)","Tradução preservando estrutura","Criação por modelos: currículo, recibo, contrato, procuração e trabalho","Assinatura e proteção de PDF","Troca, remoção e reordenação de páginas","Juntar, dividir, converter e comprimir PDF","Exportação e artefatos nativos no aparelho"],
+        providers:[
+          {name:"Google",service:"Vertex AI · Gemini 2.5 Flash-Lite",endpoint:"summarizeDocument / translateDocument / docgen",status:"Ativo",dependency:"Resumo, tradução e geração de conteúdo"},
+          {name:"Google Cloud",service:"Cloud Functions, Firebase Storage e Firestore",endpoint:"southamerica-east1",status:"Ativo",dependency:"Callables, autorização, artefatos e quotas"},
+          {name:"Device local",service:"pdf_manipulator, pdfrx, read_pdf_text e pdf",endpoint:"Execução Flutter no aparelho",status:"Ativo",dependency:"Edição, montagem, assinatura e conversões sem custo de inferência"},
+          {name:"Microsoft",service:"Azure Translator",endpoint:"api.cognitive.microsofttranslator.com",status:"Fallback",dependency:"Seam alternativo de tradução; confirmar ativação e contrato"}
+        ],
+        fixed:[
+          {name:"Rateio Functions/Storage de artefatos",provider:"Google Cloud",amount:18,basis:"Estimativa",note:"Retenção e processamento de arquivos."},
+          {name:"Reserva de segurança/antivírus e logs",provider:"Google Cloud",amount:7,basis:"Estimativa",note:"Margem para arquivos grandes e auditoria."}
+        ],
+        variable:[
+          {name:"Resumo/tradução/geração com Gemini",provider:"Google Vertex AI",driver:"generation",unitCost:.016,freeQuota:0,basis:"Estimativa",note:"Mix médio; tradução densa pode usar vários blocos."},
+          {name:"Storage e transferência de artefatos",provider:"Firebase Storage",driver:"generation",unitCost:.004,freeQuota:500,basis:"Estimativa",note:"Operações 100% locais não deveriam gerar este custo."}
+        ],
+        revenue:[
+          {name:"Vídeo recompensado no gate",provider:"Google AdMob",driver:"generation",unitRevenue:.043,basis:"Estimativa",note:"Aplicado a resumo, tradução e ferramentas premium."},
+          {name:"Premium atribuído a Documentos",provider:"App Store / Google Play",driver:"user",unitRevenue:.080,basis:"Estimativa",note:"Alta disposição a pagar; rateio conservador."}
+        ],
+        risks:["PDFs densos ampliam tokens e tempo de função","Storage sem política de retenção corrói margem","Receita depende do rewarded estar carregado"],
+        next:["Telemetria por operação: local vs IA","Limite de tamanho e custo estimado antes de executar","Upsell premium após primeira entrega bem-sucedida"]
+      }),
+      Object.assign({},common,{
+        id:"estuda",icon:"🎓",name:"Estuda",stage:"Em produção",thesis:"Conteúdo proprietário e execução majoritariamente local criam excelente alavancagem: cada novo banco de questões aumenta retenção sem elevar o custo na mesma proporção.",
+        delivered:["Trilhas para ENEM, vestibulares e concursos","Planos de estudo guiados","Simulados no formato da banca","Raio-X de desempenho","Questões comentadas e explicações do Tupan","Flashcards e revisão espaçada","Ranking, missões e progresso"],
+        providers:[
+          {name:"Tupham",service:"Bancos curados ENEM/concursos",endpoint:"hosting/estuda + assets locais",status:"Ativo",dependency:"Conteúdo e simulados; custo marginal muito baixo"},
+          {name:"Google Cloud",service:"Firestore, Functions, Hosting e Storage",endpoint:"tuphamai-graycat",status:"Ativo",dependency:"Progresso, feedback, ranking, planos e sincronização"},
+          {name:"Google",service:"Vertex AI · Gemini",endpoint:"Callables de plano/explicação quando acionadas",status:"Parcial",dependency:"Explicações e personalização de alto valor"},
+          {name:"Device local",service:"Motor de sessão, IRT e revisão",endpoint:"Execução Flutter",status:"Ativo",dependency:"Questões, correção e navegação sem inferência por item"}
+        ],
+        fixed:[
+          {name:"Hospedagem do acervo + rateio backend",provider:"Google Cloud",amount:12,basis:"Estimativa",note:"Conteúdo estático favorece cache e escala barata."},
+          {name:"Curadoria/QA técnico mensal alocado",provider:"Tupham",amount:8,basis:"Estimativa",note:"Somente infraestrutura/operacional; pessoal pode ser rateado à parte."}
+        ],
+        variable:[
+          {name:"Explicação/plano com IA",provider:"Google Vertex AI",driver:"generation",unitCost:.006,freeQuota:200,basis:"Estimativa",note:"Questões e correção comum permanecem locais."},
+          {name:"Progresso e ranking",provider:"Firestore",driver:"user",unitCost:.003,freeQuota:2000,basis:"Estimativa",note:"Batch e cache reduzem leituras."}
+        ],
+        revenue:[
+          {name:"Vídeo recompensado (plano/Raio-X/explicação)",provider:"Google AdMob",driver:"generation",unitRevenue:.035,basis:"Estimativa",note:"Gate já existe nas superfícies de maior valor."},
+          {name:"Premium atribuído ao Estuda",provider:"App Store / Google Play",driver:"user",unitRevenue:.095,basis:"Estimativa",note:"Recorrência e progresso sustentam conversão."}
+        ],
+        risks:["Qualidade e atualização do banco exigem governança","Sazonalidade forte perto das provas","IA sem cache em explicações repetidas desperdiça margem"],
+        next:["Cachear explicações por questão","Medir retenção D7/D30 de quem inicia plano","Pacotes de concurso como vetor de aquisição segmentada"]
+      }),
+      Object.assign({},common,{
+        id:"musica",icon:"🎵",name:"Música",stage:"Beta",thesis:"É a feature mais emocional e compartilhável. Mesmo com custo unitário maior, pode gerar aquisição orgânica e justificar premium quando a geração é assíncrona, limitada e claramente monetizada.",
+        delivered:["Música original e jingle","Narração e convite em áudio","Letra gerada ou escrita pelo usuário","Vibes e estilos selecionáveis","Voz instrumental, feminina ou masculina","Geração durável em segundo plano","Mixagem vocal, efeitos e exportação MP3"],
+        providers:[
+          {name:"Google",service:"Vertex AI · Gemini",endpoint:"audio_studio_compose / generateBlueprint",status:"Ativo",dependency:"Blueprint, letra, arranjo e instruções"},
+          {name:"Google Cloud",service:"Text-to-Speech",endpoint:"texttospeech.googleapis.com",status:"Ativo",dependency:"Vocais SSML; até 8 partes por geração"},
+          {name:"Google Cloud",service:"Cloud Functions + ffmpeg + Storage",endpoint:"generateMusicVocals / music_jobs",status:"Ativo",dependency:"Render, mix, job durável e arquivo final"},
+          {name:"Device/Tupham",service:"Beats curados e MIDI",endpoint:"assets + renderer",status:"Ativo",dependency:"Base musical e fallback determinístico"}
+        ],
+        fixed:[
+          {name:"Reserva de compute e Storage de áudio",provider:"Google Cloud",amount:28,basis:"Estimativa",note:"Jobs de 1GiB/120s e retenção dos MP3."},
+          {name:"Curadoria/licenciamento de beats",provider:"Tupham",amount:17,basis:"Estimativa",note:"Confirmar custo contábil/licenças do acervo."}
+        ],
+        variable:[
+          {name:"TTS + render ffmpeg + storage",provider:"Google Cloud",driver:"generation",unitCost:.075,freeQuota:100,basis:"Estimativa",note:"Teto no código: 10 gerações/dia/usuário."},
+          {name:"Gemini para blueprint/letra",provider:"Google Vertex AI",driver:"generation",unitCost:.008,freeQuota:0,basis:"Estimativa",note:"Saída JSON curta; custo menor que render."}
+        ],
+        revenue:[
+          {name:"Vídeo recompensado por criação",provider:"Google AdMob",driver:"generation",unitRevenue:.105,basis:"Estimativa",note:"Rewarded precisa anteceder o job custoso."},
+          {name:"Premium atribuído à Música",provider:"App Store / Google Play",driver:"user",unitRevenue:.105,basis:"Estimativa",note:"Uso ilimitado deve manter fair-use para proteger margem."}
+        ],
+        risks:["Compute e TTS dominam o custo marginal","Jobs longos elevam retries e abandono","Direitos/licenciamento precisam de trilha explícita"],
+        next:["Manter teto diário e idempotência","Medir compartilhamento por música entregue","Criar tier premium com fila prioritária e fair-use"]
+      }),
+      Object.assign({},common,{
+        id:"design",icon:"🎨",name:"Design",stage:"Em expansão",thesis:"Combina um editor local barato com geração visual de forte apelo. A arquitetura Cloudflare da branch dedicada oferece custo marginal baixo e uma ponte clara para premium e compartilhamento.",
+        delivered:["Convites, posts, stories e cartões","Quatro variações de colagem","Editor de camadas, fotos e stickers","Texturas e gravuras curadas","Geração de imagem por texto no Chat","Edição com imagem de referência","Exportação da arte final"],
+        providers:[
+          {name:"Cloudflare",service:"Workers AI · FLUX.2 klein 4B",endpoint:"api.cloudflare.com/client/v4/accounts/{id}/ai/run/@cf/black-forest-labs/flux-2-klein-4b",status:"Branch pronta",dependency:"Geração e edição de imagem; branch codex/chat-image-generation-workers-ai"},
+          {name:"Google",service:"Vertex AI · Gemini",endpoint:"directImagePrompt / us-central1",status:"Branch pronta",dependency:"Direção e normalização do prompt visual"},
+          {name:"Google Cloud",service:"Cloud Functions, Firestore e Storage",endpoint:"imageGenerationCreateJob / ProcessJob",status:"Branch pronta",dependency:"Job durável, quota, referências e entrega privada"},
+          {name:"Device local",service:"Editor de colagem Flutter",endpoint:"design_studio",status:"Ativo",dependency:"Montagem, camadas e export sem inferência"}
+        ],
+        fixed:[
+          {name:"Workers Paid / reserva operacional",provider:"Cloudflare",amount:10,basis:"Estimativa",note:"Validar plano contratado; IA inclui 10 mil neurons/dia grátis."},
+          {name:"Storage e orquestração de imagens",provider:"Google Cloud",amount:10,basis:"Estimativa",note:"Inputs temporários + outputs privados."},
+          {name:"Acervo visual e curadoria",provider:"Tupham",amount:5,basis:"Estimativa",note:"Texturas/stickers reutilizáveis."}
+        ],
+        variable:[
+          {name:"FLUX.2 klein 4B 1024×1024",provider:"Cloudflare Workers AI",driver:"generation",unitCost:.0063,freeQuota:2500,basis:"Tabela oficial",note:"Estimativa 4 tiles de saída × US$0,000287 × câmbio; quota livre compartilhada."},
+          {name:"Diretor de prompt + Function + Storage",provider:"Google Cloud",driver:"generation",unitCost:.007,freeQuota:500,basis:"Estimativa",note:"Inclui Gemini curto e persistência do job."}
+        ],
+        revenue:[
+          {name:"Vídeo recompensado por imagem",provider:"Google AdMob",driver:"generation",unitRevenue:.085,basis:"Estimativa",note:"Cobertura ampla sobre custo marginal."},
+          {name:"Premium atribuído ao Design",provider:"App Store / Google Play",driver:"user",unitRevenue:.115,basis:"Estimativa",note:"Feature demonstrável e de alta intenção."}
+        ],
+        risks:["Branch ainda precisa chegar à produção","Quota gratuita é compartilhada por conta/dia","Storage cresce se outputs não expirarem"],
+        next:["Integrar branch e marcar versão de custo","TTL de inputs e política de retenção dos outputs","Exibir criação como benefício premium sem retirar prova gratuita"]
+      }),
+      Object.assign({},common,{
+        id:"esportes",icon:"⚽",name:"Esportes",stage:"Em produção",thesis:"Tem alta frequência, sazonalidade positiva e múltiplas superfícies de anúncio. O custo fixo do feed se dilui rápido conforme a base cresce, tornando-o um excelente motor de retorno diário.",
+        delivered:["Placares ao vivo e agenda","Tabelas, ligas e página do time","Eventos, escalações, estatísticas e lesões","Raio-X pré-jogo e ao vivo","Palpites com XP/Verdis e ranking","Bolões privados e oficiais","Notificações de início/fim e favoritos"],
+        providers:[
+          {name:"API-Sports",service:"API-Football v3",endpoint:"https://v3.football.api-sports.io",status:"Ativo",dependency:"Fixtures, eventos, escalações, estatísticas, tabelas e times"},
+          {name:"Google Cloud",service:"Firestore, Functions e Scheduler",endpoint:"sports pollers / bolão / alertas",status:"Ativo",dependency:"Cache, placar, ranking, notificações e fan-out"},
+          {name:"Google",service:"Vertex AI · Gemini 2.5 Flash-Lite",endpoint:"getRaioXNarrative",status:"Ativo",dependency:"Narrativa do Raio-X; fail-open se indisponível"},
+          {name:"Google",service:"AdMob",endpoint:"SportsInlineAd + banners de rodapé",status:"Ativo",dependency:"Monetização do hub, torneios e bolão"}
+        ],
+        fixed:[
+          {name:"Plano API-Football",provider:"API-Sports",amount:110,basis:"Cadastro Guto",note:"Custo atual lançado no caixa; confirmar plano e câmbio da fatura."},
+          {name:"Reserva scheduler/cache/notificações",provider:"Google Cloud",amount:18,basis:"Estimativa",note:"Rateio conservador para picos de jogos."}
+        ],
+        variable:[
+          {name:"Firestore/Functions por usuário",provider:"Google Cloud",driver:"user",unitCost:.009,freeQuota:1000,basis:"Estimativa",note:"Cache servidor evita chamada externa por usuário."},
+          {name:"Narrativa Raio-X Gemini",provider:"Google Vertex AI",driver:"generation",unitCost:.003,freeQuota:100,basis:"Estimativa",note:"Saída curta e acionada somente em superfícies específicas."}
+        ],
+        revenue:[
+          {name:"Inline ads no Hub/Torneios/Bolão",provider:"Google AdMob",driver:"user",unitRevenue:.082,basis:"Estimativa",note:"Superfícies já implementadas; substituir por eCPM/fill reais."},
+          {name:"Rewarded em Raio-X e ações premium",provider:"Google AdMob",driver:"generation",unitRevenue:.040,basis:"Estimativa",note:"Gate de Verdis/premium já integrado."},
+          {name:"Premium atribuído a Esportes",provider:"App Store / Google Play",driver:"user",unitRevenue:.080,basis:"Estimativa",note:"Retorno diário, alertas e ausência de anúncios."}
+        ],
+        risks:["Plano externo é custo fixo antes de escala","Jogos ao vivo geram picos de leitura e polling","Cobertura varia por competição/temporada"],
+        next:["Consolidar cache e fan-out de jogos ao vivo","Medir receita por superfície esportiva","Converter favoritos e alertas em retenção/premium"]
+      })
+    ]
+  };
 }
 
 /* ============ LÓGICA ============ */
@@ -359,6 +560,10 @@ function migrate(){ // garante campos novos em estados salvos antes desta versã
   if(!Array.isArray(S.revenues)) S.revenues=[];
   if(!S.receipts || typeof S.receipts!=="object") S.receipts={};
   if(!Array.isArray(S.accounts)) S.accounts=[];
+  if(!S.products || !Array.isArray(S.products.features)) S.products=seedProductPortfolio();
+  if(!S.products.settings) S.products.settings=seedProductPortfolio().settings;
+  if(!S.products.settings.cohort) S.products.settings.cohort="mixed";
+  if(!Array.isArray(S.products.settings.sources)) S.products.settings.sources=seedProductPortfolio().settings.sources;
   if(!S.payments) S.payments={};
   if(!S.aportes) S.aportes={};
   if(!S.closures || typeof S.closures!=="object") S.closures={};
@@ -445,12 +650,13 @@ async function logout(){
 /* ============ NAVEGAÇÃO ============ */
 let view="dash";
 let cadTab="custo"; // "custo" | "receita"
+let productId="chat";
 document.getElementById("nav").addEventListener("click",e=>{
   const a=e.target.closest("a"); if(!a)return;
   document.querySelectorAll("#nav a").forEach(x=>x.classList.remove("active"));
   a.classList.add("active"); view=a.dataset.v; render();
 });
-const TITLES={dash:"Dashboard",cad:"Cadastro",ext:"Extratos · Entradas e Saídas",res:"Resultado & Fechamento",cont:"Contábil / Anual",cfg:"Configurações"};
+const TITLES={dash:"Dashboard",cad:"Cadastro",ext:"Extratos · Entradas e Saídas",res:"Resultado & Fechamento",prod:"Produtos · Centros de Custo",cont:"Contábil / Anual",cfg:"Configurações"};
 let charts=[];
 function render(){
   document.getElementById("viewTitle").textContent=TITLES[view];
@@ -460,6 +666,7 @@ function render(){
   if(view==="cad")v.innerHTML=vCad();
   if(view==="ext")v.innerHTML=vExt();
   if(view==="res")v.innerHTML=vRes();
+  if(view==="prod")v.innerHTML=vProd();
   if(view==="cont")v.innerHTML=vCont();
   if(view==="cfg")v.innerHTML=vCfg();
   if(view==="dash")drawDash();
@@ -993,6 +1200,107 @@ function saveAcc(id,isNew){
   closeModal(); save();
 }
 function delAcc(id){ if(!confirm("Excluir esta conta?"))return; S.accounts=S.accounts.filter(x=>x.id!==id); save(); }
+
+/* ============ PRODUTOS / CENTROS DE CUSTO ============ */
+const PROD_USERS=[10,100,1000,10000,100000];
+const PROD_GENS=[10,100,1000];
+function prodFeature(id=productId){
+  const list=S.products&&Array.isArray(S.products.features)?S.products.features:[];
+  return list.find(x=>x.id===id)||list[0];
+}
+function prodVolume(item,users,gens){return item.driver==="user"?users:gens;}
+function prodRevenueEnabled(item,cohort){
+  const premium=(item.provider||"").toLowerCase().includes("app store");
+  if(cohort==="free") return !premium;
+  if(cohort==="premium") return premium;
+  return true;
+}
+function prodEconomics(f,users,gens,cohort){
+  cohort=cohort||(S.products.settings&&S.products.settings.cohort)||"mixed";
+  const fixed=(f.fixed||[]).reduce((s,x)=>s+(Number(x.amount)||0),0);
+  const variable=(f.variable||[]).reduce((s,x)=>{
+    const volume=prodVolume(x,users,gens),billable=Math.max(0,volume-(Number(x.freeQuota)||0));
+    return s+billable*(Number(x.unitCost)||0);
+  },0);
+  const revenue=(f.revenue||[]).filter(x=>prodRevenueEnabled(x,cohort)).reduce((s,x)=>s+prodVolume(x,users,gens)*(Number(x.unitRevenue)||0),0);
+  const net=revenue-fixed-variable;
+  const contribution=revenue-variable;
+  const margin=revenue>0?net/revenue:0;
+  const payback=contribution>0?fixed/contribution:null;
+  const userRev=(f.revenue||[]).filter(x=>x.driver==="user"&&prodRevenueEnabled(x,cohort)).reduce((s,x)=>s+(Number(x.unitRevenue)||0),0);
+  const userCost=(f.variable||[]).filter(x=>x.driver==="user").reduce((s,x)=>s+(Number(x.unitCost)||0),0);
+  const genRev=(f.revenue||[]).filter(x=>x.driver!=="user"&&prodRevenueEnabled(x,cohort)).reduce((s,x)=>s+(Number(x.unitRevenue)||0),0)*gens;
+  const genCost=(f.variable||[]).filter(x=>x.driver!=="user").reduce((s,x)=>{
+    return s+Math.max(0,gens-(Number(x.freeQuota)||0))*(Number(x.unitCost)||0);
+  },0);
+  const userContribution=userRev-userCost;
+  const breakEvenUsers=userContribution>0?Math.max(0,Math.ceil((fixed+genCost-genRev)/userContribution)):null;
+  return {fixed,variable,revenue,net,contribution,margin,payback,breakEvenUsers};
+}
+function prodStatus(net){return net>1?{cls:"pos",label:"Superavitária"}:net< -1?{cls:"neg",label:"Deficitária"}:{cls:"zero",label:"0 a 0"};}
+function compactNum(n){return Number(n).toLocaleString("pt-BR",{notation:n>=10000?"compact":"standard",maximumFractionDigits:1});}
+function prodBasisClass(b){return b==="Cadastro Guto"||b==="Tabela oficial"?"pago":"prev";}
+function portfolioEconomics(users,gens){
+  return S.products.features.reduce((a,f)=>{const e=prodEconomics(f,users,gens);Object.keys(a).forEach(k=>a[k]+=e[k]||0);return a;},{fixed:0,variable:0,revenue:0,net:0});
+}
+function setProdScenario(kind,value){S.products.settings[kind]=kind==="cohort"?String(value):Number(value);S.products.settings.updatedAt=new Date().toISOString().slice(0,10);save();}
+function setProdNum(featureId,section,index,field,value){
+  const f=prodFeature(featureId),row=f&&f[section]&&f[section][index]; if(!row)return;
+  row[field]=Math.max(0,Number(value)||0);S.products.settings.updatedAt=new Date().toISOString().slice(0,10);save();
+}
+function resetProductAssumptions(){
+  if(!confirm("Restaurar todas as premissas iniciais da aba Produtos? As edições financeiras feitas aqui serão substituídas."))return;
+  S.products=seedProductPortfolio();productId="chat";save();
+}
+function prodMoneyCell(n){const s=prodStatus(n);return `<td class="${n>1?"good":n< -1?"bad":"neutral"}">${fmt(n)}<br><small>${s.label}</small></td>`;}
+
+function vProd(){
+  const ps=S.products.settings||{},users=Number(ps.users)||1000,gens=Number(ps.generations)||1000,cohort=ps.cohort||"mixed";
+  const f=prodFeature(); if(!f)return `<div class="panel"><p>Nenhum centro de custo cadastrado.</p></div>`;
+  const E=prodEconomics(f,users,gens),status=prodStatus(E.net),port=portfolioEconomics(users,gens);
+  const allRows=[...(f.fixed||[]),...(f.variable||[]),...(f.revenue||[])];
+  const verified=allRows.filter(x=>x.basis==="Cadastro Guto"||x.basis==="Tabela oficial").length;
+  const dataCoverage=allRows.length?Math.round(verified/allRows.length*100):0;
+  const providers=(f.providers||[]).map(p=>`<div class="provider-row"><b>${esc(p.name)}</b><div><strong>${esc(p.service)}</strong><br><code>${esc(p.endpoint)}</code><div class="source-note" style="border:0;padding:3px 0 0;margin:0">Dependência: ${esc(p.dependency)}</div></div><span class="tag ${p.status==="Ativo"?"pago":"prev"}">${esc(p.status)}</span></div>`).join("");
+  const fixedRows=(f.fixed||[]).map((x,i)=>`<tr><td><b>${esc(x.name)}</b><div class="kpi-note">${esc(x.note)}</div></td><td>${esc(x.provider)}</td><td><span class="tag ${prodBasisClass(x.basis)}">${esc(x.basis)}</span></td><td class="r"><input aria-label="Custo fixo ${esc(x.name)}" type="number" min="0" step="0.01" value="${x.amount}" onchange="setProdNum('${f.id}','fixed',${i},'amount',this.value)"></td></tr>`).join("");
+  const varRows=(f.variable||[]).map((x,i)=>{const volume=prodVolume(x,users,gens),bill=Math.max(0,volume-(Number(x.freeQuota)||0)),total=bill*(Number(x.unitCost)||0);return `<tr><td><b>${esc(x.name)}</b><div class="kpi-note">${esc(x.note)}</div></td><td>${esc(x.provider)}<br><span class="pill">por ${x.driver==="user"?"usuário":"geração"}</span></td><td><input aria-label="Custo unitário ${esc(x.name)}" type="number" min="0" step="0.0001" value="${x.unitCost}" onchange="setProdNum('${f.id}','variable',${i},'unitCost',this.value)"></td><td><input aria-label="Cota gratuita ${esc(x.name)}" type="number" min="0" step="1" value="${x.freeQuota}" onchange="setProdNum('${f.id}','variable',${i},'freeQuota',this.value)"></td><td class="r">${fmt(total)}<div class="kpi-note">${compactNum(bill)} faturáveis</div></td></tr>`;}).join("");
+  const revRows=(f.revenue||[]).map((x,i)=>{const enabled=prodRevenueEnabled(x,cohort),total=enabled?prodVolume(x,users,gens)*(Number(x.unitRevenue)||0):0;return `<tr style="${enabled?"":"opacity:.48"}"><td><b>${esc(x.name)}</b><div class="kpi-note">${esc(x.note)}${enabled?"":" · fora da coorte selecionada"}</div></td><td>${esc(x.provider)}</td><td><span class="pill">por ${x.driver==="user"?"usuário":"geração"}</span></td><td><input aria-label="Receita unitária ${esc(x.name)}" type="number" min="0" step="0.0001" value="${x.unitRevenue}" onchange="setProdNum('${f.id}','revenue',${i},'unitRevenue',this.value)"></td><td class="r in-up">${fmt(total)}</td></tr>`;}).join("");
+  const matrixRows=PROD_GENS.map(g=>`<tr><th>${compactNum(g)} gerações</th>${PROD_USERS.map(u=>prodMoneyCell(prodEconomics(f,u,g).net)).join("")}</tr>`).join("");
+  const portfolioCards=S.products.features.map(x=>{const e=prodEconomics(x,users,gens),s=prodStatus(e.net);return `<div class="mini-item" style="border-left-color:${s.cls==="pos"?"var(--green)":s.cls==="neg"?"var(--red)":"var(--amber)"}"><b>${x.icon} ${esc(x.name)} · ${fmt(e.net)}</b><span>${s.label} · receita ${fmt(e.revenue)} · custo ${fmt(e.fixed+e.variable)}</span></div>`;}).join("");
+  return `
+  <div class="product-hero"><h2>Produtos como unidades econômicas</h2><p>Uma leitura de conselho que conecta <b>o que entregamos</b>, <b>de quem dependemos</b>, <b>quanto custa servir</b> e <b>como cada feature se paga</b>. Premissas são mensais, editáveis e separadas de faturas confirmadas.</p></div>
+  <div class="product-tabs">${S.products.features.map(x=>{const e=prodEconomics(x,users,gens),s=prodStatus(e.net);return `<button class="product-tab ${x.id===f.id?"on":""}" onclick="productId='${x.id}';render()"><b>${x.icon} ${esc(x.name)}</b><small>${s.label} · ${fmt(e.net)}</small></button>`;}).join("")}</div>
+  <div class="panel scenario-bar">
+    <label class="fld"><span>Usuários ativos da feature / mês</span><div class="range-buttons">${PROD_USERS.map(x=>`<button class="${x===users?"on":""}" onclick="setProdScenario('users',${x})">${compactNum(x)}</button>`).join("")}</div></label>
+    <label class="fld"><span>Operações de valor / gerações / mês</span><div class="range-buttons">${PROD_GENS.map(x=>`<button class="${x===gens?"on":""}" onclick="setProdScenario('generations',${x})">${compactNum(x)}</button>`).join("")}</div></label>
+    <div><label class="fld"><span>Coorte econômica</span><div class="range-buttons"><button class="${cohort==="free"?"on":""}" onclick="setProdScenario('cohort','free')">Gratuitos</button><button class="${cohort==="mixed"?"on":""}" onclick="setProdScenario('cohort','mixed')">Base mista</button><button class="${cohort==="premium"?"on":""}" onclick="setProdScenario('cohort','premium')">Premium</button></div></label><button class="btn sec" onclick="window.print()">🖨️ Conselho / PDF</button></div>
+  </div>
+  <div class="cards">
+    <div class="card green"><div class="lbl">Receita atribuída</div><div class="val">${fmt(E.revenue)}</div><div class="sub">coorte ${cohort==="free"?"gratuita (só ads)":cohort==="premium"?"premium (sem ads)":"mista"}</div></div>
+    <div class="card"><div class="lbl">Custo de servir</div><div class="val">${fmt(E.fixed+E.variable)}</div><div class="sub">fixo ${fmt(E.fixed)} · variável ${fmt(E.variable)}</div></div>
+    <div class="card ${status.cls==="pos"?"green":status.cls==="neg"?"red":"amber"}"><div class="lbl">Saldo líquido da feature</div><div class="val">${fmt(E.net)}</div><div class="sub"><span class="status-stamp ${status.cls}">${status.label}</span></div></div>
+    <div class="card amber"><div class="lbl">Margem líquida</div><div class="val">${(E.margin*100).toFixed(1)}%</div><div class="sub">${E.breakEvenUsers==null?"break-even depende do volume de uso":compactNum(E.breakEvenUsers)+" usuários p/ break-even"}</div></div>
+    <div class="card"><div class="lbl">Tempo p/ compensar fixo</div><div class="val">${E.payback==null?"—":E.payback.toFixed(1)+" mês"+(E.payback===1?"":"es")}</div><div class="sub">com contribuição do cenário atual</div></div>
+    <div class="card"><div class="lbl">Cobertura por fonte confirmada</div><div class="val">${dataCoverage}%</div><div class="sub">${verified}/${allRows.length} linhas ancoradas em cadastro/tabela</div></div>
+  </div>
+  <div class="board-callout"><b>Por que seguir investindo em ${esc(f.name)}</b><p>${esc(f.thesis)}</p></div>
+  <div class="chassis-grid">
+    <div>
+      <div class="panel"><h3>${f.icon} O que é entregue <span class="pill">${esc(f.stage)}</span></h3><div class="mini-list">${f.delivered.map(x=>`<div class="mini-item"><b>${esc(x)}</b></div>`).join("")}</div></div>
+      <div class="panel"><h3>Provedores, endpoints e dependências</h3>${providers}</div>
+    </div>
+    <div>
+      <div class="panel"><h3>Leitura do portfólio neste cenário</h3><div class="cards" style="grid-template-columns:1fr 1fr"><div class="card green"><div class="lbl">Receita total</div><div class="val" style="font-size:20px">${fmt(port.revenue)}</div></div><div class="card ${port.net>=0?"green":"red"}"><div class="lbl">Saldo portfólio</div><div class="val" style="font-size:20px">${fmt(port.net)}</div></div></div><div class="mini-list">${portfolioCards}</div><p class="source-note">Leitura comparável: aplica a mesma base de usuários e operações a cada centro de custo. Para orçamento final, substitua pelo MAU e volume próprios de cada feature.</p></div>
+      <div class="panel"><h3>Riscos sob controle</h3><div class="mini-list">${f.risks.map(x=>`<div class="mini-item" style="border-left-color:var(--red)"><b>${esc(x)}</b></div>`).join("")}</div></div>
+      <div class="panel"><h3>Próximas alavancas</h3><div class="mini-list">${f.next.map(x=>`<div class="mini-item" style="border-left-color:var(--green)"><b>${esc(x)}</b></div>`).join("")}</div></div>
+    </div>
+  </div>
+  <div class="panel"><h3>Custos fixos mensais <span class="pill">total ${fmt(E.fixed)}</span></h3><div style="overflow:auto"><table class="money-table"><thead><tr><th>Componente</th><th>Provedor</th><th>Qualidade da fonte</th><th class="r">R$ / mês</th></tr></thead><tbody>${fixedRows}</tbody></table></div></div>
+  <div class="panel"><h3>Custos variáveis <span class="pill">cenário ${fmt(E.variable)}</span></h3><div style="overflow:auto"><table class="money-table"><thead><tr><th>Componente</th><th>Provedor / driver</th><th>R$ unitário</th><th>Cota grátis / mês</th><th class="r">Custo cenário</th></tr></thead><tbody>${varRows}</tbody></table></div><p class="source-note">Custo variável = máximo entre zero e (volume − cota gratuita) × custo unitário. Cotas de conta compartilhadas devem ser rateadas com cautela para não contar o benefício duas vezes.</p></div>
+  <div class="panel"><h3>Fontes de receita <span class="pill">cenário ${fmt(E.revenue)}</span></h3><div style="overflow:auto"><table class="money-table"><thead><tr><th>Superfície / fonte</th><th>Provedor</th><th>Driver</th><th>R$ unitário líquido</th><th class="r">Receita cenário</th></tr></thead><tbody>${revRows}</tbody></table></div><p class="source-note">Receita de anúncios deve usar receita líquida observada (eCPM × impressões preenchidas), já descontando fill rate. Premium deve ser alocado sem somar mais de 100% da receita líquida entre as features.</p></div>
+  <div class="panel"><h3>Matriz de saldo líquido mensal · ${esc(f.name)}</h3><p class="muted">Linhas variam as operações de valor; colunas variam os usuários ativos da feature. Cada célula já desconta custo fixo, variável e cotas na coorte selecionada.</p><div style="overflow:auto"><table class="matrix"><thead><tr><th>Volume × MAU</th>${PROD_USERS.map(u=>`<th>${compactNum(u)} usuários</th>`).join("")}</tr></thead><tbody>${matrixRows}</tbody></table></div></div>
+  <div class="panel"><h3>Governança da decisão</h3><div class="grid2"><div><p><span class="data-badge">Revisão ${esc(f.reviewed)}</span> <span class="data-badge">Confiança ${esc(f.confidence)}</span> <span class="data-badge">Dono ${esc(f.owner)}</span></p><p class="muted">Verde confirma fonte externa/cadastro; “Estimativa” exige conciliação com fatura e telemetria. Última alteração das premissas: ${esc(ps.updatedAt||f.reviewed)}.</p></div><div><p><b>Critério para conselho:</b> investir quando a contribuição unitária é positiva e existe caminho mensurável para diluir o custo fixo. Manter experimento controlado quando o saldo ainda é negativo, mas a feature aumenta retenção, aquisição ou conversão premium do portfólio.</p></div></div><h3 style="margin-top:18px">Fontes oficiais de preço e quota</h3><div class="mini-list">${(ps.sources||[]).map(x=>`<div class="mini-item"><b><a href="${esc(x.url)}" target="_blank" rel="noopener" style="color:var(--cyan)">${esc(x.name)}</a></b><span>${esc(x.url)}</span></div>`).join("")}</div><div class="toolbar" style="margin-top:12px"><button class="btn danger sm" onclick="resetProductAssumptions()">Restaurar premissas iniciais</button></div></div>`;
+}
 
 /* ============ CONTÁBIL / ANUAL ============ */
 function vCont(){

@@ -20,6 +20,7 @@ sem build. Login + dados compartilhados via **Supabase**.
 - **Dashboard**: mês atual (auto), custo, receita recebida, saldo do mês, pago/a pagar, acumulado, gráfico Custo×Receita + categoria, painel de fechamento.
 - **Resultado & Fechamento** (substituiu "Aportes"): para o mês, mostra gastos previstos, receita recebida e o **saldo de fechamento = receita recebida − gastos previstos** (base "necessidade do mês"). Saldo **negativo** → aporte por sócio (÷ nº sócios); **positivo** → distribuição de lucro por sócio. Cada sócio marca o próprio aporte/retirada + data. Inclui painel **Contas & Instituições** (banco, tipo, saldo manual editável — pronto pra integração com o Inter depois).
 - **Contábil/Anual**: resumo mensal (custo/receita/pago/saldo/sócio), resultado do ano, por categoria, fixo×variável, export CSV (entradas+saídas)/JSON/PDF.
+- **Produtos**: centros de custo de Chat, Documentos, Estuda, Música, Design e Esportes. Cada feature usa o mesmo chassi analítico: entregas, provedores/endpoints, dependências, custos fixos e variáveis, cotas, receitas por superfície, coorte (gratuita/mista/premium), payback e matriz de cenários (10/100/1.000 gerações × 10/100/1.000/10.000/100.000 usuários). Premissas são editáveis e persistem no estado compartilhado.
 - Estado salvo: nuvem (Supabase, tabela `app_state`, linha `guto-graycat`) ou localStorage se as chaves estiverem vazias. `migrate()` garante os campos `revenues`/`receipts`/`accounts` em estados salvos antes desta versão.
 
 ## Supabase (já configurado no index.html)
