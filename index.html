@@ -165,8 +165,16 @@ select.in option{background:#fbf7ec}
 .matrix{min-width:730px}.matrix td,.matrix th{text-align:right;font-family:var(--mono)}.matrix td:first-child,.matrix th:first-child{text-align:left;position:sticky;left:0;background:var(--panel);z-index:1}.matrix .good{color:var(--green);background:rgba(95,125,58,.08)}.matrix .bad{color:var(--red);background:rgba(181,67,42,.07)}.matrix .neutral{color:#8a6418;background:rgba(200,154,60,.08)}
 .board-callout{border:2px solid var(--green);background:rgba(95,125,58,.09);padding:15px 17px;margin-bottom:18px}.board-callout b{font-family:var(--disp);font-size:17px;color:var(--green)}.board-callout p{margin:6px 0 0;line-height:1.45}
 .data-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;padding:3px 7px;border:1px solid var(--line);background:var(--soft)}
+.twin-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch;margin-bottom:18px}.twin-grid>.panel{height:100%;margin:0}
+.artifact-list{display:grid;gap:9px}.artifact-card{display:block;width:100%;padding:0;background:var(--bg2);border:1.5px solid var(--ink);text-align:left;color:var(--ink);box-shadow:2px 2px 0 rgba(44,35,23,.18)}
+.artifact-card:hover{background:rgba(47,110,106,.06)}.artifact-card.on{border-color:var(--cyan);box-shadow:3px 3px 0 rgba(47,110,106,.28)}
+.artifact-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px;width:100%;border:0;background:transparent;text-align:left;color:var(--ink)}.artifact-head b{font-size:13px}.artifact-head small{display:block;color:var(--muted);margin-top:3px;font-family:var(--mono);font-size:10px}
+.artifact-price{text-align:right;font-family:var(--mono);white-space:nowrap}.artifact-price strong{display:block;color:var(--cyan);font-size:14px}.artifact-price small{margin-top:2px}
+.artifact-detail{border-top:1px dotted var(--line);padding:5px 12px 10px;background:var(--soft)}
+.artifact-cost-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:8px 0;border-bottom:1px dotted var(--line);align-items:center}.artifact-cost-row:last-child{border-bottom:0}.artifact-cost-row b{font-family:var(--mono);font-size:11px}.artifact-cost-row span{display:block;color:var(--muted);font-size:10px;margin-top:2px}.artifact-cost-row .r strong{font-family:var(--mono);font-size:11px}.artifact-cost-row .r span{white-space:nowrap}
+.matrix-legend{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;color:var(--muted);margin:8px 0 12px}.matrix-legend i{display:inline-block;width:10px;height:10px;border:1px solid var(--ink);margin-right:5px;vertical-align:-1px}
 @media(max-width:1050px){.product-tabs{grid-template-columns:repeat(3,1fr)}.chassis-grid{grid-template-columns:1fr}}
-@media(max-width:700px){.main{flex:0 0 calc(100vw - 64px);width:calc(100vw - 64px);max-width:calc(100vw - 64px);overflow:hidden}.wrap{width:100%;max-width:100%;padding:18px 14px;overflow:hidden}.top{padding:12px 14px;align-items:flex-start;gap:3px;flex-direction:column}.top h1{font-size:18px}.top .yr{white-space:normal}.product-hero,.panel,.cards,.chassis-grid{min-width:0;max-width:100%}.product-tabs{grid-template-columns:repeat(2,minmax(0,1fr));max-width:100%}.product-tab small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.scenario-bar{grid-template-columns:minmax(0,1fr)}.provider-row{grid-template-columns:85px minmax(0,1fr)}.provider-row .tag{grid-column:1/3;width:max-content}.money-table input{width:78px}}
+@media(max-width:700px){.main{flex:0 0 calc(100vw - 64px);width:calc(100vw - 64px);max-width:calc(100vw - 64px);overflow:hidden}.wrap{width:100%;max-width:100%;padding:18px 14px;overflow:hidden}.top{padding:12px 14px;align-items:flex-start;gap:3px;flex-direction:column}.top h1{font-size:18px}.top .yr{white-space:normal}.product-hero,.panel,.cards,.chassis-grid{min-width:0;max-width:100%}.product-tabs{grid-template-columns:repeat(2,minmax(0,1fr));max-width:100%}.product-tab small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.scenario-bar{grid-template-columns:minmax(0,1fr)}.provider-row{grid-template-columns:85px minmax(0,1fr)}.provider-row .tag{grid-column:1/3;width:max-content}.money-table input{width:78px}.twin-grid{grid-template-columns:1fr}.artifact-head{grid-template-columns:1fr}.artifact-price{text-align:left}}
 @media print{.side,.top,.scenario-bar,.product-tabs .product-tab:not(.on),button{display:none!important}.main{width:100%}.wrap{max-width:none;padding:0}.panel,.card,.product-hero{box-shadow:none;break-inside:avoid}.product-tabs{display:block}.product-tab.on{display:block!important;color:var(--ink);background:var(--panel);width:100%}.chassis-grid{grid-template-columns:1fr 1fr}body{background:#fff;font-size:11px}}
 </style>
 </head>
@@ -291,6 +299,7 @@ function seedProductPortfolio(){
   const reviewed="2026-08-10";
   const common={reviewed,confidence:"Média",owner:"Produto + Finanças",currency:"BRL"};
   return {
+    version:2,
     settings:{usdBrl:5.50,users:1000,generations:1000,cohort:"mixed",updatedAt:reviewed,
       sources:[
         {name:"Cloudflare Workers AI · pricing",url:"https://developers.cloudflare.com/workers-ai/platform/pricing/"},
@@ -302,7 +311,11 @@ function seedProductPortfolio(){
     features:[
       Object.assign({},common,{
         id:"chat",icon:"💬",name:"Chat",stage:"Em produção",thesis:"É a porta de entrada e o maior motor de hábito. Melhorar qualidade e latência aumenta retenção de todo o portfólio e cria distribuição orgânica para as demais features.",
-        delivered:["Conversa geral e personas","Pesquisa web com fontes e citações","Respostas estruturadas e artefatos","Continuidade de conversa e histórico","Modo offline com modelo local","Encaminhamento para Documentos, Estuda, Design e Esportes"],
+        deliverables:[
+          {id:"chat_grounded",name:"Resposta com pesquisa e fontes",unit:"resposta",costs:[{provider:"Google Vertex AI",service:"Síntese, extração e grounding",driver:"generation",unitCost:.018,freeQuota:0},{provider:"Google Cloud Functions",service:"Orquestração do pipeline",driver:"generation",unitCost:.003,freeQuota:200},{provider:"Firestore",service:"Histórico, estado e telemetria",driver:"generation",unitCost:.002,freeQuota:1000}]},
+          {id:"chat_offline",name:"Resposta local / offline",unit:"resposta",costs:[{provider:"Device local",service:"Inferência Tupico via llama.cpp",driver:"generation",unitCost:0,freeQuota:0},{provider:"Cloudflare R2",service:"Distribuição autenticada do modelo",driver:"user",unitCost:.002,freeQuota:1000}]},
+          {id:"chat_artifact",name:"Artefato textual estruturado",unit:"artefato",costs:[{provider:"Google Vertex AI",service:"Estruturação e redação",driver:"generation",unitCost:.012,freeQuota:0},{provider:"Firebase Storage",service:"Persistência do artefato",driver:"generation",unitCost:.002,freeQuota:500},{provider:"Firestore",service:"Metadados e vínculo com a conversa",driver:"generation",unitCost:.001,freeQuota:1000}]}
+        ],
         providers:[
           {name:"Google Cloud",service:"Firebase Auth, Firestore, Cloud Functions/Run e Storage",endpoint:"southamerica-east1 / projeto tuphamai-graycat",status:"Ativo",dependency:"Identidade, persistência, jobs duráveis e orquestração"},
           {name:"Google",service:"Vertex AI · Gemini 2.5 Flash-Lite",endpoint:"us-central1-aiplatform.googleapis.com/...:generateContent",status:"Ativo",dependency:"Extração, planejamento, síntese e respostas aterradas"},
@@ -329,7 +342,12 @@ function seedProductPortfolio(){
       }),
       Object.assign({},common,{
         id:"documentos",icon:"📄",name:"Documentos",stage:"Em produção",thesis:"Resolve tarefas de alto valor percebido e baixa frequência. O gate de vídeo/premium já permite monetizar no momento exato de intenção, enquanto operações locais protegem margem.",
-        delivered:["Resumo de PDF (até 5 páginas)","Tradução preservando estrutura","Criação por modelos: currículo, recibo, contrato, procuração e trabalho","Assinatura e proteção de PDF","Troca, remoção e reordenação de páginas","Juntar, dividir, converter e comprimir PDF","Exportação e artefatos nativos no aparelho"],
+        deliverables:[
+          {id:"doc_summary",name:"Resumo de documento · até 5 páginas",unit:"documento",costs:[{provider:"Google Vertex AI",service:"Resumo com Gemini 2.5 Flash-Lite",driver:"generation",unitCost:.016,freeQuota:0},{provider:"Cloud Functions",service:"Validação, quota e processamento",driver:"generation",unitCost:.003,freeQuota:200},{provider:"Firebase Storage",service:"Arquivo temporário e resultado",driver:"generation",unitCost:.002,freeQuota:500}]},
+          {id:"doc_translate",name:"Tradução estruturada de documento",unit:"documento",costs:[{provider:"Google Vertex AI",service:"Tradução e reconstrução estrutural",driver:"generation",unitCost:.024,freeQuota:0},{provider:"Cloud Functions",service:"Chunking e montagem",driver:"generation",unitCost:.004,freeQuota:200},{provider:"Firebase Storage",service:"Original e artefato traduzido",driver:"generation",unitCost:.002,freeQuota:500}]},
+          {id:"doc_edit",name:"PDF editado ou assinado",unit:"arquivo",costs:[{provider:"Device local",service:"Páginas, assinatura, proteção e composição",driver:"generation",unitCost:0,freeQuota:0},{provider:"Firebase Storage",service:"Sincronização opcional do resultado",driver:"generation",unitCost:.002,freeQuota:500}]},
+          {id:"doc_create",name:"Documento criado por modelo",unit:"documento",costs:[{provider:"Google Vertex AI",service:"Conteúdo do currículo, contrato ou recibo",driver:"generation",unitCost:.012,freeQuota:0},{provider:"Cloud Functions",service:"Validação e geração",driver:"generation",unitCost:.003,freeQuota:200},{provider:"Firebase Storage",service:"Artefato exportado",driver:"generation",unitCost:.002,freeQuota:500}]}
+        ],
         providers:[
           {name:"Google",service:"Vertex AI · Gemini 2.5 Flash-Lite",endpoint:"summarizeDocument / translateDocument / docgen",status:"Ativo",dependency:"Resumo, tradução e geração de conteúdo"},
           {name:"Google Cloud",service:"Cloud Functions, Firebase Storage e Firestore",endpoint:"southamerica-east1",status:"Ativo",dependency:"Callables, autorização, artefatos e quotas"},
@@ -353,7 +371,12 @@ function seedProductPortfolio(){
       }),
       Object.assign({},common,{
         id:"estuda",icon:"🎓",name:"Estuda",stage:"Em produção",thesis:"Conteúdo proprietário e execução majoritariamente local criam excelente alavancagem: cada novo banco de questões aumenta retenção sem elevar o custo na mesma proporção.",
-        delivered:["Trilhas para ENEM, vestibulares e concursos","Planos de estudo guiados","Simulados no formato da banca","Raio-X de desempenho","Questões comentadas e explicações do Tupan","Flashcards e revisão espaçada","Ranking, missões e progresso"],
+        deliverables:[
+          {id:"study_session",name:"Sessão de estudo ou simulado",unit:"sessão",costs:[{provider:"Tupham / Device",service:"Banco de questões, correção e IRT",driver:"generation",unitCost:0,freeQuota:0},{provider:"Firestore",service:"Progresso, respostas e ranking",driver:"user",unitCost:.003,freeQuota:2000}]},
+          {id:"study_plan",name:"Plano de estudo personalizado",unit:"plano",costs:[{provider:"Google Vertex AI",service:"Personalização do plano",driver:"generation",unitCost:.006,freeQuota:200},{provider:"Cloud Functions",service:"Regras, quota e persistência",driver:"generation",unitCost:.002,freeQuota:500},{provider:"Firestore",service:"Agenda e progresso do plano",driver:"user",unitCost:.001,freeQuota:2000}]},
+          {id:"study_raiox",name:"Raio-X de desempenho",unit:"análise",costs:[{provider:"Cloud Functions",service:"Agregação de desempenho",driver:"generation",unitCost:.002,freeQuota:500},{provider:"Firestore",service:"Leitura de sessões e competências",driver:"user",unitCost:.002,freeQuota:2000}]},
+          {id:"study_explain",name:"Explicação personalizada do Tupan",unit:"explicação",costs:[{provider:"Google Vertex AI",service:"Explicação contextual",driver:"generation",unitCost:.005,freeQuota:200},{provider:"Cloud Functions",service:"Gate, cache e entrega",driver:"generation",unitCost:.001,freeQuota:500}]}
+        ],
         providers:[
           {name:"Tupham",service:"Bancos curados ENEM/concursos",endpoint:"hosting/estuda + assets locais",status:"Ativo",dependency:"Conteúdo e simulados; custo marginal muito baixo"},
           {name:"Google Cloud",service:"Firestore, Functions, Hosting e Storage",endpoint:"tuphamai-graycat",status:"Ativo",dependency:"Progresso, feedback, ranking, planos e sincronização"},
@@ -377,20 +400,22 @@ function seedProductPortfolio(){
       }),
       Object.assign({},common,{
         id:"musica",icon:"🎵",name:"Música",stage:"Beta",thesis:"É a feature mais emocional e compartilhável. Mesmo com custo unitário maior, pode gerar aquisição orgânica e justificar premium quando a geração é assíncrona, limitada e claramente monetizada.",
-        delivered:["Música original e jingle","Narração e convite em áudio","Letra gerada ou escrita pelo usuário","Vibes e estilos selecionáveis","Voz instrumental, feminina ou masculina","Geração durável em segundo plano","Mixagem vocal, efeitos e exportação MP3"],
+        deliverables:[
+          {id:"music_60s",name:"Artefato musical cantado · 60 segundos",unit:"música",costs:[{provider:"Google Cloud Run GPU",service:"Geração ACE-Step 1.5 + masterização MP3",driver:"generation",unitCost:.150,freeQuota:0},{provider:"Google Vertex AI",service:"Blueprint, letra e caption musical",driver:"generation",unitCost:.008,freeQuota:0},{provider:"Firebase Storage",service:"Armazenamento e entrega do MP3",driver:"generation",unitCost:.004,freeQuota:100},{provider:"Firestore",service:"Job durável, status e biblioteca",driver:"generation",unitCost:.002,freeQuota:100}]}
+        ],
         providers:[
-          {name:"Google",service:"Vertex AI · Gemini",endpoint:"audio_studio_compose / generateBlueprint",status:"Ativo",dependency:"Blueprint, letra, arranjo e instruções"},
-          {name:"Google Cloud",service:"Text-to-Speech",endpoint:"texttospeech.googleapis.com",status:"Ativo",dependency:"Vocais SSML; até 8 partes por geração"},
-          {name:"Google Cloud",service:"Cloud Functions + ffmpeg + Storage",endpoint:"generateMusicVocals / music_jobs",status:"Ativo",dependency:"Render, mix, job durável e arquivo final"},
-          {name:"Device/Tupham",service:"Beats curados e MIDI",endpoint:"assets + renderer",status:"Ativo",dependency:"Base musical e fallback determinístico"}
+          {name:"Google",service:"Vertex AI · Gemini",endpoint:"audio_studio_compose / generateBlueprint",status:"Ativo",dependency:"Blueprint, letra e caption musical"},
+          {name:"Google Cloud",service:"Cloud Run GPU · ACE-Step 1.5",endpoint:"audio-studio-ace / us-central1 / NVIDIA L4",status:"Ativo",dependency:"Geração cantada de 60 segundos e masterização"},
+          {name:"Google Cloud",service:"Cloud Functions + Firestore + Storage",endpoint:"music_jobs / audio_studio/{uid}",status:"Ativo",dependency:"Job durável, status, biblioteca e MP3 final"}
         ],
         fixed:[
-          {name:"Reserva de compute e Storage de áudio",provider:"Google Cloud",amount:28,basis:"Estimativa",note:"Jobs de 1GiB/120s e retenção dos MP3."},
-          {name:"Curadoria/licenciamento de beats",provider:"Tupham",amount:17,basis:"Estimativa",note:"Confirmar custo contábil/licenças do acervo."}
+          {name:"Reserva de Storage e observabilidade",provider:"Google Cloud",amount:28,basis:"Estimativa",note:"Jobs duráveis, logs e retenção dos MP3."},
+          {name:"Curadoria e QA do motor musical",provider:"Tupham",amount:17,basis:"Estimativa",note:"ACE-Step é MIT; este rateio cobre operação e qualidade."}
         ],
         variable:[
-          {name:"TTS + render ffmpeg + storage",provider:"Google Cloud",driver:"generation",unitCost:.075,freeQuota:100,basis:"Estimativa",note:"Teto no código: 10 gerações/dia/usuário."},
-          {name:"Gemini para blueprint/letra",provider:"Google Vertex AI",driver:"generation",unitCost:.008,freeQuota:0,basis:"Estimativa",note:"Saída JSON curta; custo menor que render."}
+          {name:"Cloud Run GPU · ACE-Step 1.5",provider:"Google Cloud",driver:"generation",unitCost:.150,freeQuota:0,basis:"Estimativa",note:"Execução efêmera em L4 para música de 60 segundos."},
+          {name:"Gemini para blueprint/letra",provider:"Google Vertex AI",driver:"generation",unitCost:.008,freeQuota:0,basis:"Estimativa",note:"Saída JSON curta; custo menor que o render."},
+          {name:"MP3, job e biblioteca",provider:"Firebase",driver:"generation",unitCost:.006,freeQuota:100,basis:"Estimativa",note:"Storage, Firestore e entrega do artefato."}
         ],
         revenue:[
           {name:"Vídeo recompensado por criação",provider:"Google AdMob",driver:"generation",unitRevenue:.105,basis:"Estimativa",note:"Rewarded precisa anteceder o job custoso."},
@@ -401,7 +426,11 @@ function seedProductPortfolio(){
       }),
       Object.assign({},common,{
         id:"design",icon:"🎨",name:"Design",stage:"Em expansão",thesis:"Combina um editor local barato com geração visual de forte apelo. A arquitetura Cloudflare da branch dedicada oferece custo marginal baixo e uma ponte clara para premium e compartilhamento.",
-        delivered:["Convites, posts, stories e cartões","Quatro variações de colagem","Editor de camadas, fotos e stickers","Texturas e gravuras curadas","Geração de imagem por texto no Chat","Edição com imagem de referência","Exportação da arte final"],
+        deliverables:[
+          {id:"design_collage",name:"Arte visual em colagem",unit:"arte",costs:[{provider:"Device local",service:"Editor, camadas, texturas e exportação",driver:"generation",unitCost:0,freeQuota:0},{provider:"Firebase Storage",service:"Sincronização opcional da arte",driver:"generation",unitCost:.002,freeQuota:500}]},
+          {id:"design_image",name:"Imagem gerada por IA · 1024×1024",unit:"imagem",costs:[{provider:"Cloudflare Workers AI",service:"FLUX.2 klein 4B · geração visual",driver:"generation",unitCost:.0063,freeQuota:2500},{provider:"Google Vertex AI",service:"Direção e normalização do prompt",driver:"generation",unitCost:.003,freeQuota:500},{provider:"Cloud Functions",service:"Job durável, quota e entrega",driver:"generation",unitCost:.002,freeQuota:500},{provider:"Firebase Storage",service:"Imagem privada gerada",driver:"generation",unitCost:.002,freeQuota:500}]},
+          {id:"design_edit",name:"Imagem editada por referência",unit:"imagem",costs:[{provider:"Cloudflare Workers AI",service:"FLUX.2 klein 4B · edição visual",driver:"generation",unitCost:.0063,freeQuota:2500},{provider:"Google Vertex AI",service:"Direção do prompt de edição",driver:"generation",unitCost:.004,freeQuota:500},{provider:"Firebase Storage",service:"Referência temporária e resultado",driver:"generation",unitCost:.003,freeQuota:500}]}
+        ],
         providers:[
           {name:"Cloudflare",service:"Workers AI · FLUX.2 klein 4B",endpoint:"api.cloudflare.com/client/v4/accounts/{id}/ai/run/@cf/black-forest-labs/flux-2-klein-4b",status:"Branch pronta",dependency:"Geração e edição de imagem; branch codex/chat-image-generation-workers-ai"},
           {name:"Google",service:"Vertex AI · Gemini",endpoint:"directImagePrompt / us-central1",status:"Branch pronta",dependency:"Direção e normalização do prompt visual"},
@@ -426,7 +455,11 @@ function seedProductPortfolio(){
       }),
       Object.assign({},common,{
         id:"esportes",icon:"⚽",name:"Esportes",stage:"Em produção",thesis:"Tem alta frequência, sazonalidade positiva e múltiplas superfícies de anúncio. O custo fixo do feed se dilui rápido conforme a base cresce, tornando-o um excelente motor de retorno diário.",
-        delivered:["Placares ao vivo e agenda","Tabelas, ligas e página do time","Eventos, escalações, estatísticas e lesões","Raio-X pré-jogo e ao vivo","Palpites com XP/Verdis e ranking","Bolões privados e oficiais","Notificações de início/fim e favoritos"],
+        deliverables:[
+          {id:"sports_live",name:"Sessão de acompanhamento ao vivo",unit:"sessão",costs:[{provider:"API-Sports",service:"Fixtures, eventos, escalações e estatísticas",driver:"fixed",amount:110},{provider:"Firestore",service:"Cache e fan-out dos placares",driver:"user",unitCost:.009,freeQuota:1000},{provider:"Cloud Scheduler / Functions",service:"Polling e atualização do calendário",driver:"fixed",amount:10}]},
+          {id:"sports_raiox",name:"Raio-X de uma partida",unit:"análise",costs:[{provider:"API-Sports",service:"Forma, H2H, tabela e estatísticas",driver:"fixed",amount:110},{provider:"Google Vertex AI",service:"Narrativa analítica Gemini",driver:"generation",unitCost:.003,freeQuota:100},{provider:"Firestore",service:"Cache e desbloqueio do Raio-X",driver:"user",unitCost:.002,freeQuota:1000}]},
+          {id:"sports_bolao",name:"Bolão ou palpite acompanhado",unit:"participação",costs:[{provider:"API-Sports",service:"Resultado oficial e encerramento",driver:"fixed",amount:110},{provider:"Firestore / Functions",service:"Palpites, ranking e liquidação",driver:"user",unitCost:.008,freeQuota:1000},{provider:"Firebase Messaging",service:"Alertas e resultado",driver:"user",unitCost:.001,freeQuota:1000}]}
+        ],
         providers:[
           {name:"API-Sports",service:"API-Football v3",endpoint:"https://v3.football.api-sports.io",status:"Ativo",dependency:"Fixtures, eventos, escalações, estatísticas, tabelas e times"},
           {name:"Google Cloud",service:"Firestore, Functions e Scheduler",endpoint:"sports pollers / bolão / alertas",status:"Ativo",dependency:"Cache, placar, ranking, notificações e fan-out"},
@@ -560,10 +593,23 @@ function migrate(){ // garante campos novos em estados salvos antes desta versã
   if(!Array.isArray(S.revenues)) S.revenues=[];
   if(!S.receipts || typeof S.receipts!=="object") S.receipts={};
   if(!Array.isArray(S.accounts)) S.accounts=[];
-  if(!S.products || !Array.isArray(S.products.features)) S.products=seedProductPortfolio();
-  if(!S.products.settings) S.products.settings=seedProductPortfolio().settings;
+  const productDefaults=seedProductPortfolio();
+  if(!S.products || !Array.isArray(S.products.features)) S.products=productDefaults;
+  if(!S.products.settings) S.products.settings=productDefaults.settings;
   if(!S.products.settings.cohort) S.products.settings.cohort="mixed";
-  if(!Array.isArray(S.products.settings.sources)) S.products.settings.sources=seedProductPortfolio().settings.sources;
+  if(!Array.isArray(S.products.settings.sources)) S.products.settings.sources=productDefaults.settings.sources;
+  if((Number(S.products.version)||0)<2){
+    (S.products.features||[]).forEach(f=>{
+      const fresh=productDefaults.features.find(x=>x.id===f.id); if(!fresh)return;
+      if(!Array.isArray(f.deliverables)) f.deliverables=fresh.deliverables;
+      // O motor musical anterior estava descrito como TTS; o SSOT atual é
+      // Cloud Run GPU + ACE-Step 1.5, então esta parte precisa de migração.
+      if(f.id==="musica"){
+        f.providers=fresh.providers; f.fixed=fresh.fixed; f.variable=fresh.variable;
+      }
+    });
+    S.products.version=2;
+  }
   if(!S.payments) S.payments={};
   if(!S.aportes) S.aportes={};
   if(!S.closures || typeof S.closures!=="object") S.closures={};
@@ -651,6 +697,8 @@ async function logout(){
 let view="dash";
 let cadTab="custo"; // "custo" | "receita"
 let productId="chat";
+let productDeliveryId="";
+let productRevenueIndex=-1;
 document.getElementById("nav").addEventListener("click",e=>{
   const a=e.target.closest("a"); if(!a)return;
   document.querySelectorAll("#nav a").forEach(x=>x.classList.remove("active"));
@@ -670,6 +718,7 @@ function render(){
   if(view==="cont")v.innerHTML=vCont();
   if(view==="cfg")v.innerHTML=vCfg();
   if(view==="dash")drawDash();
+  if(view==="prod")drawProd();
   if(view==="cont")drawCont();
 }
 
@@ -1202,13 +1251,23 @@ function saveAcc(id,isNew){
 function delAcc(id){ if(!confirm("Excluir esta conta?"))return; S.accounts=S.accounts.filter(x=>x.id!==id); save(); }
 
 /* ============ PRODUTOS / CENTROS DE CUSTO ============ */
-const PROD_USERS=[10,100,1000,10000,100000];
-const PROD_GENS=[10,100,1000];
+const PROD_USERS=[10,100,1000,10000,100000,1000000];
+const PROD_GENS=[10,100,1000,10000,100000];
 function prodFeature(id=productId){
   const list=S.products&&Array.isArray(S.products.features)?S.products.features:[];
   return list.find(x=>x.id===id)||list[0];
 }
 function prodVolume(item,users,gens){return item.driver==="user"?users:gens;}
+function deliveryCostTotal(item,users,gens){
+  if(item.driver==="fixed") return Number(item.amount)||0;
+  const volume=prodVolume(item,users,gens);
+  return Math.max(0,volume-(Number(item.freeQuota)||0))*(Number(item.unitCost)||0);
+}
+function deliveryEconomics(delivery,users,gens){
+  const lines=(delivery.costs||[]).map(x=>Object.assign({},x,{total:deliveryCostTotal(x,users,gens)}));
+  const total=lines.reduce((s,x)=>s+x.total,0);
+  return {lines,total,perArtifact:total/Math.max(1,gens)};
+}
 function prodRevenueEnabled(item,cohort){
   const premium=(item.provider||"").toLowerCase().includes("app store");
   if(cohort==="free") return !premium;
@@ -1253,6 +1312,9 @@ function resetProductAssumptions(){
   S.products=seedProductPortfolio();productId="chat";save();
 }
 function prodMoneyCell(n){const s=prodStatus(n);return `<td class="${n>1?"good":n< -1?"bad":"neutral"}">${fmt(n)}<br><small>${s.label}</small></td>`;}
+function toggleProductDelivery(id){productDeliveryId=productDeliveryId===id?"":id;productRevenueIndex=-1;render();}
+function toggleProductRevenue(index){productRevenueIndex=productRevenueIndex===index?-1:index;productDeliveryId="";render();}
+function prodDriverLabel(x){return x.driver==="fixed"?"fixo rateado":x.driver==="user"?"base de usuários":"volume de gerações";}
 
 function vProd(){
   const ps=S.products.settings||{},users=Number(ps.users)||1000,gens=Number(ps.generations)||1000,cohort=ps.cohort||"mixed";
@@ -1264,12 +1326,13 @@ function vProd(){
   const providers=(f.providers||[]).map(p=>`<div class="provider-row"><b>${esc(p.name)}</b><div><strong>${esc(p.service)}</strong><br><code>${esc(p.endpoint)}</code><div class="source-note" style="border:0;padding:3px 0 0;margin:0">Dependência: ${esc(p.dependency)}</div></div><span class="tag ${p.status==="Ativo"?"pago":"prev"}">${esc(p.status)}</span></div>`).join("");
   const fixedRows=(f.fixed||[]).map((x,i)=>`<tr><td><b>${esc(x.name)}</b><div class="kpi-note">${esc(x.note)}</div></td><td>${esc(x.provider)}</td><td><span class="tag ${prodBasisClass(x.basis)}">${esc(x.basis)}</span></td><td class="r"><input aria-label="Custo fixo ${esc(x.name)}" type="number" min="0" step="0.01" value="${x.amount}" onchange="setProdNum('${f.id}','fixed',${i},'amount',this.value)"></td></tr>`).join("");
   const varRows=(f.variable||[]).map((x,i)=>{const volume=prodVolume(x,users,gens),bill=Math.max(0,volume-(Number(x.freeQuota)||0)),total=bill*(Number(x.unitCost)||0);return `<tr><td><b>${esc(x.name)}</b><div class="kpi-note">${esc(x.note)}</div></td><td>${esc(x.provider)}<br><span class="pill">por ${x.driver==="user"?"usuário":"geração"}</span></td><td><input aria-label="Custo unitário ${esc(x.name)}" type="number" min="0" step="0.0001" value="${x.unitCost}" onchange="setProdNum('${f.id}','variable',${i},'unitCost',this.value)"></td><td><input aria-label="Cota gratuita ${esc(x.name)}" type="number" min="0" step="1" value="${x.freeQuota}" onchange="setProdNum('${f.id}','variable',${i},'freeQuota',this.value)"></td><td class="r">${fmt(total)}<div class="kpi-note">${compactNum(bill)} faturáveis</div></td></tr>`;}).join("");
-  const revRows=(f.revenue||[]).map((x,i)=>{const enabled=prodRevenueEnabled(x,cohort),total=enabled?prodVolume(x,users,gens)*(Number(x.unitRevenue)||0):0;return `<tr style="${enabled?"":"opacity:.48"}"><td><b>${esc(x.name)}</b><div class="kpi-note">${esc(x.note)}${enabled?"":" · fora da coorte selecionada"}</div></td><td>${esc(x.provider)}</td><td><span class="pill">por ${x.driver==="user"?"usuário":"geração"}</span></td><td><input aria-label="Receita unitária ${esc(x.name)}" type="number" min="0" step="0.0001" value="${x.unitRevenue}" onchange="setProdNum('${f.id}','revenue',${i},'unitRevenue',this.value)"></td><td class="r in-up">${fmt(total)}</td></tr>`;}).join("");
+  const deliveryCards=(f.deliverables||[]).map(d=>{const D=deliveryEconomics(d,users,gens),open=productDeliveryId===d.id;const detail=D.lines.map(x=>`<div class="artifact-cost-row"><div><b>${esc(x.provider)}</b><span>${esc(x.service)} · ${prodDriverLabel(x)}${x.freeQuota?` · cota ${compactNum(x.freeQuota)}`:""}</span></div><div class="r"><strong>${fmt(x.total/Math.max(1,gens))} / ${esc(d.unit)}</strong><span>${fmt(x.total)} no cenário</span></div></div>`).join("");return `<div class="artifact-card ${open?"on":""}"><button class="artifact-head" onclick="toggleProductDelivery('${d.id}')"><div><b>${esc(d.name)}</b><small>clique para discriminar o custo por provedor</small></div><div class="artifact-price"><strong>${fmt(D.perArtifact)} / ${esc(d.unit)}</strong><small>${fmt(D.total)} no cenário</small></div></button>${open?`<div class="artifact-detail">${detail}<div class="source-note">Custo efetivo unitário = custos diretos do cenário ÷ ${compactNum(gens)} unidades entregues. Custos ligados à base de usuários e custos fixos são rateados automaticamente.</div></div>`:""}</div>`;}).join("");
+  const revenueCards=(f.revenue||[]).map((x,i)=>{const enabled=prodRevenueEnabled(x,cohort),total=enabled?prodVolume(x,users,gens)*(Number(x.unitRevenue)||0):0,perArtifact=total/Math.max(1,gens),open=productRevenueIndex===i;return `<div class="artifact-card ${open?"on":""}" style="${enabled?"":"opacity:.52"}"><button class="artifact-head" onclick="toggleProductRevenue(${i})"><div><b>${esc(x.name)}</b><small>${enabled?`movida por ${x.driver==="user"?"usuários ativos":"operações de valor"}`:"fora da coorte selecionada"}</small></div><div class="artifact-price"><strong>${fmt(perArtifact)} / operação</strong><small>${fmt(total)} no cenário</small></div></button>${open?`<div class="artifact-detail"><div class="artifact-cost-row"><div><b>${esc(x.provider)}</b><span>${esc(x.note)}</span></div><div class="r"><strong>${fmt(Number(x.unitRevenue)||0)} / ${x.driver==="user"?"usuário":"operação"}</strong><span>${esc(x.basis)}</span></div></div><div class="source-note">A receita efetiva por operação muda conforme a relação entre usuários e gerações. Na coorte gratuita entram anúncios; na premium entram apenas receitas de assinatura atribuídas.</div></div>`:""}</div>`;}).join("");
   const matrixRows=PROD_GENS.map(g=>`<tr><th>${compactNum(g)} gerações</th>${PROD_USERS.map(u=>prodMoneyCell(prodEconomics(f,u,g).net)).join("")}</tr>`).join("");
   const portfolioCards=S.products.features.map(x=>{const e=prodEconomics(x,users,gens),s=prodStatus(e.net);return `<div class="mini-item" style="border-left-color:${s.cls==="pos"?"var(--green)":s.cls==="neg"?"var(--red)":"var(--amber)"}"><b>${x.icon} ${esc(x.name)} · ${fmt(e.net)}</b><span>${s.label} · receita ${fmt(e.revenue)} · custo ${fmt(e.fixed+e.variable)}</span></div>`;}).join("");
   return `
   <div class="product-hero"><h2>Produtos como unidades econômicas</h2><p>Uma leitura de conselho que conecta <b>o que entregamos</b>, <b>de quem dependemos</b>, <b>quanto custa servir</b> e <b>como cada feature se paga</b>. Premissas são mensais, editáveis e separadas de faturas confirmadas.</p></div>
-  <div class="product-tabs">${S.products.features.map(x=>{const e=prodEconomics(x,users,gens),s=prodStatus(e.net);return `<button class="product-tab ${x.id===f.id?"on":""}" onclick="productId='${x.id}';render()"><b>${x.icon} ${esc(x.name)}</b><small>${s.label} · ${fmt(e.net)}</small></button>`;}).join("")}</div>
+  <div class="product-tabs">${S.products.features.map(x=>{const e=prodEconomics(x,users,gens),s=prodStatus(e.net);return `<button class="product-tab ${x.id===f.id?"on":""}" onclick="productId='${x.id}';productDeliveryId='';productRevenueIndex=-1;render()"><b>${x.icon} ${esc(x.name)}</b><small>${s.label} · ${fmt(e.net)}</small></button>`;}).join("")}</div>
   <div class="panel scenario-bar">
     <label class="fld"><span>Usuários ativos da feature / mês</span><div class="range-buttons">${PROD_USERS.map(x=>`<button class="${x===users?"on":""}" onclick="setProdScenario('users',${x})">${compactNum(x)}</button>`).join("")}</div></label>
     <label class="fld"><span>Operações de valor / gerações / mês</span><div class="range-buttons">${PROD_GENS.map(x=>`<button class="${x===gens?"on":""}" onclick="setProdScenario('generations',${x})">${compactNum(x)}</button>`).join("")}</div></label>
@@ -1284,22 +1347,25 @@ function vProd(){
     <div class="card"><div class="lbl">Cobertura por fonte confirmada</div><div class="val">${dataCoverage}%</div><div class="sub">${verified}/${allRows.length} linhas ancoradas em cadastro/tabela</div></div>
   </div>
   <div class="board-callout"><b>Por que seguir investindo em ${esc(f.name)}</b><p>${esc(f.thesis)}</p></div>
-  <div class="chassis-grid">
-    <div>
-      <div class="panel"><h3>${f.icon} O que é entregue <span class="pill">${esc(f.stage)}</span></h3><div class="mini-list">${f.delivered.map(x=>`<div class="mini-item"><b>${esc(x)}</b></div>`).join("")}</div></div>
-      <div class="panel"><h3>Provedores, endpoints e dependências</h3>${providers}</div>
-    </div>
-    <div>
-      <div class="panel"><h3>Leitura do portfólio neste cenário</h3><div class="cards" style="grid-template-columns:1fr 1fr"><div class="card green"><div class="lbl">Receita total</div><div class="val" style="font-size:20px">${fmt(port.revenue)}</div></div><div class="card ${port.net>=0?"green":"red"}"><div class="lbl">Saldo portfólio</div><div class="val" style="font-size:20px">${fmt(port.net)}</div></div></div><div class="mini-list">${portfolioCards}</div><p class="source-note">Leitura comparável: aplica a mesma base de usuários e operações a cada centro de custo. Para orçamento final, substitua pelo MAU e volume próprios de cada feature.</p></div>
-      <div class="panel"><h3>Riscos sob controle</h3><div class="mini-list">${f.risks.map(x=>`<div class="mini-item" style="border-left-color:var(--red)"><b>${esc(x)}</b></div>`).join("")}</div></div>
-      <div class="panel"><h3>Próximas alavancas</h3><div class="mini-list">${f.next.map(x=>`<div class="mini-item" style="border-left-color:var(--green)"><b>${esc(x)}</b></div>`).join("")}</div></div>
-    </div>
+  <div class="twin-grid">
+    <div class="panel"><h3>${f.icon} O que é entregue <span class="pill">${esc(f.stage)}</span></h3><p class="muted">Cada item representa uma unidade concreta de valor. Abra para ver o custo efetivo de cada provedor no cenário selecionado.</p><div class="artifact-list">${deliveryCards}</div></div>
+    <div class="panel"><h3>💰 Fontes de receita <span class="pill">${cohort==="free"?"gratuitos":cohort==="premium"?"premium":"base mista"}</span></h3><p class="muted">A mesma ótica por unidade: receita efetiva por operação e total mensal, já respeitando a coorte selecionada.</p><div class="artifact-list">${revenueCards}</div></div>
   </div>
+  <div class="panel"><h3>Matriz de saldo líquido mensal · ${esc(f.name)}</h3><p class="muted">Eixo X = usuários ativos. Eixo Y = operações de valor. A cor mostra superávit ou déficit; o tamanho mostra a intensidade do resultado.</p><div class="matrix-legend"><span><i style="background:rgba(95,125,58,.7)"></i>superavitário</span><span><i style="background:rgba(181,67,42,.7)"></i>deficitário</span><span><i style="background:rgba(200,154,60,.7)"></i>0 a 0</span><span>● contorno forte = cenário selecionado</span></div><div style="height:390px"><canvas id="prodMatrixChart"></canvas></div><details style="margin-top:12px"><summary style="cursor:pointer;font-family:var(--mono);font-weight:700">Ver valores exatos da matriz</summary><div style="overflow:auto;margin-top:10px"><table class="matrix"><thead><tr><th>Volume × MAU</th>${PROD_USERS.map(u=>`<th>${compactNum(u)} usuários</th>`).join("")}</tr></thead><tbody>${matrixRows}</tbody></table></div></details></div>
+  <div class="chassis-grid"><div class="panel"><h3>Provedores, endpoints e dependências</h3>${providers}</div><div class="panel"><h3>Leitura do portfólio neste cenário</h3><div class="cards" style="grid-template-columns:1fr 1fr"><div class="card green"><div class="lbl">Receita total</div><div class="val" style="font-size:20px">${fmt(port.revenue)}</div></div><div class="card ${port.net>=0?"green":"red"}"><div class="lbl">Saldo portfólio</div><div class="val" style="font-size:20px">${fmt(port.net)}</div></div></div><div class="mini-list">${portfolioCards}</div><p class="source-note">Leitura comparável: aplica a mesma base de usuários e operações a cada centro de custo.</p></div></div>
+  <div class="twin-grid"><div class="panel"><h3>Riscos sob controle</h3><div class="mini-list">${f.risks.map(x=>`<div class="mini-item" style="border-left-color:var(--red)"><b>${esc(x)}</b></div>`).join("")}</div></div><div class="panel"><h3>Próximas alavancas</h3><div class="mini-list">${f.next.map(x=>`<div class="mini-item" style="border-left-color:var(--green)"><b>${esc(x)}</b></div>`).join("")}</div></div></div>
   <div class="panel"><h3>Custos fixos mensais <span class="pill">total ${fmt(E.fixed)}</span></h3><div style="overflow:auto"><table class="money-table"><thead><tr><th>Componente</th><th>Provedor</th><th>Qualidade da fonte</th><th class="r">R$ / mês</th></tr></thead><tbody>${fixedRows}</tbody></table></div></div>
   <div class="panel"><h3>Custos variáveis <span class="pill">cenário ${fmt(E.variable)}</span></h3><div style="overflow:auto"><table class="money-table"><thead><tr><th>Componente</th><th>Provedor / driver</th><th>R$ unitário</th><th>Cota grátis / mês</th><th class="r">Custo cenário</th></tr></thead><tbody>${varRows}</tbody></table></div><p class="source-note">Custo variável = máximo entre zero e (volume − cota gratuita) × custo unitário. Cotas de conta compartilhadas devem ser rateadas com cautela para não contar o benefício duas vezes.</p></div>
-  <div class="panel"><h3>Fontes de receita <span class="pill">cenário ${fmt(E.revenue)}</span></h3><div style="overflow:auto"><table class="money-table"><thead><tr><th>Superfície / fonte</th><th>Provedor</th><th>Driver</th><th>R$ unitário líquido</th><th class="r">Receita cenário</th></tr></thead><tbody>${revRows}</tbody></table></div><p class="source-note">Receita de anúncios deve usar receita líquida observada (eCPM × impressões preenchidas), já descontando fill rate. Premium deve ser alocado sem somar mais de 100% da receita líquida entre as features.</p></div>
-  <div class="panel"><h3>Matriz de saldo líquido mensal · ${esc(f.name)}</h3><p class="muted">Linhas variam as operações de valor; colunas variam os usuários ativos da feature. Cada célula já desconta custo fixo, variável e cotas na coorte selecionada.</p><div style="overflow:auto"><table class="matrix"><thead><tr><th>Volume × MAU</th>${PROD_USERS.map(u=>`<th>${compactNum(u)} usuários</th>`).join("")}</tr></thead><tbody>${matrixRows}</tbody></table></div></div>
   <div class="panel"><h3>Governança da decisão</h3><div class="grid2"><div><p><span class="data-badge">Revisão ${esc(f.reviewed)}</span> <span class="data-badge">Confiança ${esc(f.confidence)}</span> <span class="data-badge">Dono ${esc(f.owner)}</span></p><p class="muted">Verde confirma fonte externa/cadastro; “Estimativa” exige conciliação com fatura e telemetria. Última alteração das premissas: ${esc(ps.updatedAt||f.reviewed)}.</p></div><div><p><b>Critério para conselho:</b> investir quando a contribuição unitária é positiva e existe caminho mensurável para diluir o custo fixo. Manter experimento controlado quando o saldo ainda é negativo, mas a feature aumenta retenção, aquisição ou conversão premium do portfólio.</p></div></div><h3 style="margin-top:18px">Fontes oficiais de preço e quota</h3><div class="mini-list">${(ps.sources||[]).map(x=>`<div class="mini-item"><b><a href="${esc(x.url)}" target="_blank" rel="noopener" style="color:var(--cyan)">${esc(x.name)}</a></b><span>${esc(x.url)}</span></div>`).join("")}</div><div class="toolbar" style="margin-top:12px"><button class="btn danger sm" onclick="resetProductAssumptions()">Restaurar premissas iniciais</button></div></div>`;
+}
+
+function drawProd(){
+  const cv=document.getElementById("prodMatrixChart"); if(!cv||!window.Chart)return;
+  const f=prodFeature(),ps=S.products.settings||{},users=Number(ps.users)||1000,gens=Number(ps.generations)||1000;
+  const raw=[];PROD_GENS.forEach(g=>PROD_USERS.forEach(u=>{const e=prodEconomics(f,u,g),s=prodStatus(e.net);raw.push({x:u,y:g,net:e.net,status:s.label,selected:u===users&&g===gens});}));
+  const maxAbs=Math.max(1,...raw.map(x=>Math.abs(x.net)));
+  raw.forEach(x=>{x.r=7+15*Math.sqrt(Math.abs(x.net)/maxAbs);});
+  charts.push(new Chart(cv,{type:"bubble",data:{datasets:[{data:raw,backgroundColor:raw.map(x=>x.net>1?"rgba(95,125,58,.68)":x.net< -1?"rgba(181,67,42,.66)":"rgba(200,154,60,.72)"),borderColor:raw.map(x=>x.selected?"#1e1810":"rgba(44,35,23,.58)"),borderWidth:raw.map(x=>x.selected?4:1.2)}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:items=>items.length?`${compactNum(items[0].raw.x)} usuários × ${compactNum(items[0].raw.y)} operações`:"",label:ctx=>[`Saldo: ${fmt(ctx.raw.net)}`,ctx.raw.status]}}},scales:{x:{type:"logarithmic",min:10,max:1000000,title:{display:true,text:"Usuários ativos da feature / mês"},ticks:{callback:v=>PROD_USERS.includes(Number(v))?compactNum(Number(v)):""}},y:{type:"logarithmic",min:10,max:100000,title:{display:true,text:"Operações de valor / gerações / mês"},ticks:{callback:v=>PROD_GENS.includes(Number(v))?compactNum(Number(v)):""}}}}}));
 }
 
 /* ============ CONTÁBIL / ANUAL ============ */
