@@ -146,8 +146,13 @@ select.in option{background:#fbf7ec}
 .product-tab{background:var(--panel);border:1.5px solid var(--ink);padding:12px 10px;text-align:left;box-shadow:3px 3px 0 rgba(44,35,23,.14);color:var(--ink);min-width:0;overflow:hidden}
 .product-tab.on{background:var(--cyan);color:var(--bg2);transform:translate(1px,1px);box-shadow:2px 2px 0 var(--ink)}
 .product-tab b{display:block;font-size:13px}.product-tab small{display:block;margin-top:4px;opacity:.8;font-family:var(--mono);font-size:10px}
-.scenario-bar{display:grid;grid-template-columns:1fr 1fr auto;gap:14px;align-items:end}
-.scenario-bar label{margin:0}.scenario-bar .btn{margin-bottom:1px}
+.scenario-bar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.scenario-widget{display:flex;flex-direction:column;min-width:0;min-height:142px;border:1.5px solid var(--ink);background:var(--panel);padding:13px;box-shadow:3px 3px 0 rgba(44,35,23,.14)}
+.scenario-widget:nth-child(1){border-top:5px solid var(--cyan)}.scenario-widget:nth-child(2){border-top:5px solid var(--amber)}.scenario-widget:nth-child(3){border-top:5px solid var(--green)}.scenario-widget:nth-child(4){border-top:5px solid var(--red)}
+.scenario-widget h4{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.5px;margin:0 0 9px;color:var(--muted)}
+.scenario-widget .range-buttons{margin-top:auto}.scenario-widget .scenario-value{font-family:var(--disp);font-size:20px;color:var(--head);line-height:1.05;margin-bottom:5px}.scenario-widget .scenario-sub{font-size:10px;color:var(--muted);line-height:1.35;margin-bottom:9px}
+.simulation-note{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;border:2px solid var(--green);background:rgba(95,125,58,.08);padding:13px 15px;margin-bottom:18px}.simulation-note strong{font-family:var(--disp);color:var(--green);font-size:16px}.simulation-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:var(--mono);font-size:11px}.simulation-flow b{font-size:13px}.simulation-flow i{font-style:normal;color:var(--muted)}
+.chart-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:10px 0 12px}.chart-shortcut{display:flex;flex-direction:column;gap:4px;border:1px solid var(--line);background:var(--soft);padding:8px 10px}.chart-shortcut span{font-family:var(--mono);font-size:9px;text-transform:uppercase;color:var(--muted)}.chart-shortcut select{width:100%;min-width:0;border:1px solid var(--ink);background:var(--bg2);color:var(--ink);padding:7px 8px;font-family:var(--mono);font-size:11px}.chart-shortcut select:disabled{opacity:.65}
 .range-buttons{display:flex;gap:5px;flex-wrap:wrap}
 .range-buttons button{border:1px solid var(--ink);background:var(--bg2);padding:6px 9px;font-family:var(--mono);font-size:11px;color:var(--ink)}
 .range-buttons button.on{background:var(--amber);font-weight:700}
@@ -173,8 +178,8 @@ select.in option{background:#fbf7ec}
 .artifact-detail{border-top:1px dotted var(--line);padding:5px 12px 10px;background:var(--soft)}
 .artifact-cost-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:8px 0;border-bottom:1px dotted var(--line);align-items:center}.artifact-cost-row:last-child{border-bottom:0}.artifact-cost-row b{font-family:var(--mono);font-size:11px}.artifact-cost-row span{display:block;color:var(--muted);font-size:10px;margin-top:2px}.artifact-cost-row .r strong{font-family:var(--mono);font-size:11px}.artifact-cost-row .r span{white-space:nowrap}
 .matrix-legend{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;color:var(--muted);margin:8px 0 12px}.matrix-legend i{display:inline-block;width:10px;height:10px;border:1px solid var(--ink);margin-right:5px;vertical-align:-1px}
-@media(max-width:1050px){.product-tabs{grid-template-columns:repeat(3,1fr)}.chassis-grid{grid-template-columns:1fr}}
-@media(max-width:700px){.main{flex:0 0 calc(100vw - 64px);width:calc(100vw - 64px);max-width:calc(100vw - 64px);overflow:hidden}.wrap{width:100%;max-width:100%;padding:18px 14px;overflow:hidden}.top{padding:12px 14px;align-items:flex-start;gap:3px;flex-direction:column}.top h1{font-size:18px}.top .yr{white-space:normal}.product-hero,.panel,.cards,.chassis-grid{min-width:0;max-width:100%}.product-tabs{grid-template-columns:repeat(2,minmax(0,1fr));max-width:100%}.product-tab small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.scenario-bar{grid-template-columns:minmax(0,1fr)}.provider-row{grid-template-columns:85px minmax(0,1fr)}.provider-row .tag{grid-column:1/3;width:max-content}.money-table input{width:78px}.twin-grid{grid-template-columns:1fr}.artifact-head{grid-template-columns:1fr}.artifact-price{text-align:left}}
+@media(max-width:1050px){.product-tabs{grid-template-columns:repeat(3,1fr)}.chassis-grid{grid-template-columns:1fr}.scenario-bar{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.main{flex:0 0 calc(100vw - 64px);width:calc(100vw - 64px);max-width:calc(100vw - 64px);overflow:hidden}.wrap{width:100%;max-width:100%;padding:18px 14px;overflow:hidden}.top{padding:12px 14px;align-items:flex-start;gap:3px;flex-direction:column}.top h1{font-size:18px}.top .yr{white-space:normal}.product-hero,.panel,.cards,.chassis-grid{min-width:0;max-width:100%}.product-tabs{grid-template-columns:repeat(2,minmax(0,1fr));max-width:100%}.product-tab small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.scenario-bar,.chart-shortcuts{grid-template-columns:minmax(0,1fr)}.scenario-widget{min-height:0}.simulation-note{grid-template-columns:1fr}.provider-row{grid-template-columns:85px minmax(0,1fr)}.provider-row .tag{grid-column:1/3;width:max-content}.money-table input{width:78px}.twin-grid{grid-template-columns:1fr}.artifact-head{grid-template-columns:1fr}.artifact-price{text-align:left}}
 @media print{.side,.top,.scenario-bar,.product-tabs .product-tab:not(.on),button{display:none!important}.main{width:100%}.wrap{max-width:none;padding:0}.panel,.card,.product-hero{box-shadow:none;break-inside:avoid}.product-tabs{display:block}.product-tab.on{display:block!important;color:var(--ink);background:var(--panel);width:100%}.chassis-grid{grid-template-columns:1fr 1fr}body{background:#fff;font-size:11px}}
 </style>
 </head>
@@ -299,8 +304,8 @@ function seedProductPortfolio(){
   const reviewed="2026-08-10";
   const common={reviewed,confidence:"Média",owner:"Produto + Finanças",currency:"BRL"};
   return {
-    version:2,
-    settings:{usdBrl:5.50,users:1000,generations:1000,cohort:"mixed",updatedAt:reviewed,
+    version:3,
+    settings:{usdBrl:5.50,users:1000,generations:1000,simulationMode:"manual",cohort:"mixed",updatedAt:reviewed,
       sources:[
         {name:"Cloudflare Workers AI · pricing",url:"https://developers.cloudflare.com/workers-ai/platform/pricing/"},
         {name:"Google Vertex AI · pricing",url:"https://cloud.google.com/vertex-ai/generative-ai/pricing"},
@@ -597,6 +602,7 @@ function migrate(){ // garante campos novos em estados salvos antes desta versã
   if(!S.products || !Array.isArray(S.products.features)) S.products=productDefaults;
   if(!S.products.settings) S.products.settings=productDefaults.settings;
   if(!S.products.settings.cohort) S.products.settings.cohort="mixed";
+  if(!S.products.settings.simulationMode) S.products.settings.simulationMode="manual";
   if(!Array.isArray(S.products.settings.sources)) S.products.settings.sources=productDefaults.settings.sources;
   if((Number(S.products.version)||0)<2){
     (S.products.features||[]).forEach(f=>{
@@ -610,6 +616,7 @@ function migrate(){ // garante campos novos em estados salvos antes desta versã
     });
     S.products.version=2;
   }
+  if((Number(S.products.version)||0)<3) S.products.version=3;
   if(!S.payments) S.payments={};
   if(!S.aportes) S.aportes={};
   if(!S.closures || typeof S.closures!=="object") S.closures={};
@@ -1253,6 +1260,14 @@ function delAcc(id){ if(!confirm("Excluir esta conta?"))return; S.accounts=S.acc
 /* ============ PRODUTOS / CENTROS DE CUSTO ============ */
 const PROD_USERS=[10,100,1000,10000,100000,1000000];
 const PROD_GENS=[10,100,1000,10000,100000];
+const PROD_SIMULATION={
+  chat:{activation:.70,opsPerActive:16,label:"uso recorrente e porta de entrada"},
+  documentos:{activation:.22,opsPerActive:2,label:"necessidade pontual de alta intenção"},
+  estuda:{activation:.28,opsPerActive:8,label:"recorrência semanal de estudo"},
+  musica:{activation:.10,opsPerActive:1.2,label:"criação ocasional e compartilhável"},
+  design:{activation:.14,opsPerActive:2,label:"criação visual recorrente moderada"},
+  esportes:{activation:.20,opsPerActive:6,label:"acompanhamento frequente em dias de jogo"}
+};
 function prodFeature(id=productId){
   const list=S.products&&Array.isArray(S.products.features)?S.products.features:[];
   return list.find(x=>x.id===id)||list[0];
@@ -1299,10 +1314,19 @@ function prodEconomics(f,users,gens,cohort){
 function prodStatus(net){return net>1?{cls:"pos",label:"Superavitária"}:net< -1?{cls:"neg",label:"Deficitária"}:{cls:"zero",label:"0 a 0"};}
 function compactNum(n){return Number(n).toLocaleString("pt-BR",{notation:n>=10000?"compact":"standard",maximumFractionDigits:1});}
 function prodBasisClass(b){return b==="Cadastro Guto"||b==="Tabela oficial"?"pago":"prev";}
-function portfolioEconomics(users,gens){
-  return S.products.features.reduce((a,f)=>{const e=prodEconomics(f,users,gens);Object.keys(a).forEach(k=>a[k]+=e[k]||0);return a;},{fixed:0,variable:0,revenue:0,net:0});
+function prodScenario(f=prodFeature()){
+  const ps=S.products.settings||{},baseUsers=Number(ps.users)||1000,manualGens=Number(ps.generations)||1000,mode=ps.simulationMode||"manual";
+  const profile=PROD_SIMULATION[f.id]||{activation:.20,opsPerActive:3,label:"hipótese inicial de uso"};
+  if(mode!=="world") return {mode:"manual",baseUsers,users:baseUsers,gens:manualGens,profile};
+  const users=Math.max(1,Math.round(baseUsers*profile.activation));
+  const gens=Math.max(1,Math.round(users*profile.opsPerActive));
+  return {mode:"world",baseUsers,users,gens,profile};
 }
-function setProdScenario(kind,value){S.products.settings[kind]=kind==="cohort"?String(value):Number(value);S.products.settings.updatedAt=new Date().toISOString().slice(0,10);save();}
+function portfolioEconomics(cohort){
+  return S.products.features.reduce((a,f)=>{const sc=prodScenario(f),e=prodEconomics(f,sc.users,sc.gens,cohort);Object.keys(a).forEach(k=>a[k]+=e[k]||0);return a;},{fixed:0,variable:0,revenue:0,net:0});
+}
+function setProdScenario(kind,value){S.products.settings[kind]=kind==="cohort"||kind==="simulationMode"?String(value):Number(value);S.products.settings.updatedAt=new Date().toISOString().slice(0,10);save();}
+function setProductFeature(id){productId=id;productDeliveryId="";productRevenueIndex=-1;render();}
 function setProdNum(featureId,section,index,field,value){
   const f=prodFeature(featureId),row=f&&f[section]&&f[section][index]; if(!row)return;
   row[field]=Math.max(0,Number(value)||0);S.products.settings.updatedAt=new Date().toISOString().slice(0,10);save();
@@ -1317,9 +1341,10 @@ function toggleProductRevenue(index){productRevenueIndex=productRevenueIndex===i
 function prodDriverLabel(x){return x.driver==="fixed"?"fixo rateado":x.driver==="user"?"base de usuários":"volume de gerações";}
 
 function vProd(){
-  const ps=S.products.settings||{},users=Number(ps.users)||1000,gens=Number(ps.generations)||1000,cohort=ps.cohort||"mixed";
+  const ps=S.products.settings||{},cohort=ps.cohort||"mixed";
   const f=prodFeature(); if(!f)return `<div class="panel"><p>Nenhum centro de custo cadastrado.</p></div>`;
-  const E=prodEconomics(f,users,gens),status=prodStatus(E.net),port=portfolioEconomics(users,gens);
+  const scenario=prodScenario(f),users=scenario.users,gens=scenario.gens,baseUsers=scenario.baseUsers,world=scenario.mode==="world";
+  const E=prodEconomics(f,users,gens),status=prodStatus(E.net),port=portfolioEconomics(cohort);
   const allRows=[...(f.fixed||[]),...(f.variable||[]),...(f.revenue||[])];
   const verified=allRows.filter(x=>x.basis==="Cadastro Guto"||x.basis==="Tabela oficial").length;
   const dataCoverage=allRows.length?Math.round(verified/allRows.length*100):0;
@@ -1329,15 +1354,18 @@ function vProd(){
   const deliveryCards=(f.deliverables||[]).map(d=>{const D=deliveryEconomics(d,users,gens),open=productDeliveryId===d.id;const detail=D.lines.map(x=>`<div class="artifact-cost-row"><div><b>${esc(x.provider)}</b><span>${esc(x.service)} · ${prodDriverLabel(x)}${x.freeQuota?` · cota ${compactNum(x.freeQuota)}`:""}</span></div><div class="r"><strong>${fmt(x.total/Math.max(1,gens))} / ${esc(d.unit)}</strong><span>${fmt(x.total)} no cenário</span></div></div>`).join("");return `<div class="artifact-card ${open?"on":""}"><button class="artifact-head" onclick="toggleProductDelivery('${d.id}')"><div><b>${esc(d.name)}</b><small>clique para discriminar o custo por provedor</small></div><div class="artifact-price"><strong>${fmt(D.perArtifact)} / ${esc(d.unit)}</strong><small>${fmt(D.total)} no cenário</small></div></button>${open?`<div class="artifact-detail">${detail}<div class="source-note">Custo efetivo unitário = custos diretos do cenário ÷ ${compactNum(gens)} unidades entregues. Custos ligados à base de usuários e custos fixos são rateados automaticamente.</div></div>`:""}</div>`;}).join("");
   const revenueCards=(f.revenue||[]).map((x,i)=>{const enabled=prodRevenueEnabled(x,cohort),total=enabled?prodVolume(x,users,gens)*(Number(x.unitRevenue)||0):0,perArtifact=total/Math.max(1,gens),open=productRevenueIndex===i;return `<div class="artifact-card ${open?"on":""}" style="${enabled?"":"opacity:.52"}"><button class="artifact-head" onclick="toggleProductRevenue(${i})"><div><b>${esc(x.name)}</b><small>${enabled?`movida por ${x.driver==="user"?"usuários ativos":"operações de valor"}`:"fora da coorte selecionada"}</small></div><div class="artifact-price"><strong>${fmt(perArtifact)} / operação</strong><small>${fmt(total)} no cenário</small></div></button>${open?`<div class="artifact-detail"><div class="artifact-cost-row"><div><b>${esc(x.provider)}</b><span>${esc(x.note)}</span></div><div class="r"><strong>${fmt(Number(x.unitRevenue)||0)} / ${x.driver==="user"?"usuário":"operação"}</strong><span>${esc(x.basis)}</span></div></div><div class="source-note">A receita efetiva por operação muda conforme a relação entre usuários e gerações. Na coorte gratuita entram anúncios; na premium entram apenas receitas de assinatura atribuídas.</div></div>`:""}</div>`;}).join("");
   const matrixRows=PROD_GENS.map(g=>`<tr><th>${compactNum(g)} gerações</th>${PROD_USERS.map(u=>prodMoneyCell(prodEconomics(f,u,g).net)).join("")}</tr>`).join("");
-  const portfolioCards=S.products.features.map(x=>{const e=prodEconomics(x,users,gens),s=prodStatus(e.net);return `<div class="mini-item" style="border-left-color:${s.cls==="pos"?"var(--green)":s.cls==="neg"?"var(--red)":"var(--amber)"}"><b>${x.icon} ${esc(x.name)} · ${fmt(e.net)}</b><span>${s.label} · receita ${fmt(e.revenue)} · custo ${fmt(e.fixed+e.variable)}</span></div>`;}).join("");
+  const portfolioCards=S.products.features.map(x=>{const sc=prodScenario(x),e=prodEconomics(x,sc.users,sc.gens,cohort),s=prodStatus(e.net);return `<div class="mini-item" style="border-left-color:${s.cls==="pos"?"var(--green)":s.cls==="neg"?"var(--red)":"var(--amber)"}"><b>${x.icon} ${esc(x.name)} · ${fmt(e.net)}</b><span>${s.label} · ${compactNum(sc.users)} ativos · ${compactNum(sc.gens)} operações · receita ${fmt(e.revenue)} · custo ${fmt(e.fixed+e.variable)}</span></div>`;}).join("");
+  const simulationNote=world?`<div class="simulation-note"><strong>🌎 Premissas do mundo simulado · ${esc(f.name)}</strong><div><div class="simulation-flow"><span>Base Tupham <b>${compactNum(baseUsers)}</b></span><i>→</i><span>ativação <b>${(scenario.profile.activation*100).toFixed(0)}%</b></span><i>→</i><span>ativos da feature <b>${compactNum(users)}</b></span><i>→</i><span><b>${String(scenario.profile.opsPerActive).replace(".",",")}</b> operações/ativo</span><i>→</i><span>operações projetadas <b>${compactNum(gens)}</b></span></div><div class="scenario-sub" style="margin:6px 0 0">Hipótese mensal inicial: ${esc(scenario.profile.label)}. Não é dado confirmado; deve ser recalibrada com telemetria real de ativação e frequência.</div></div></div>`:"";
+  const chartShortcuts=`<div class="chart-shortcuts"><label class="chart-shortcut"><span>Feature</span><select onchange="setProductFeature(this.value)">${S.products.features.map(x=>`<option value="${x.id}" ${x.id===f.id?"selected":""}>${x.icon} ${esc(x.name)}</option>`).join("")}</select></label><label class="chart-shortcut"><span>${world?"Base total Tupham":"Usuários ativos"}</span><select onchange="setProdScenario('users',this.value)">${PROD_USERS.map(x=>`<option value="${x}" ${x===baseUsers?"selected":""}>${compactNum(x)}</option>`).join("")}</select></label><label class="chart-shortcut"><span>${world?"Operações projetadas":"Operações de valor"}</span><select ${world?"disabled":""} onchange="setProdScenario('generations',this.value)">${world?`<option>${compactNum(gens)} · automático</option>`:PROD_GENS.map(x=>`<option value="${x}" ${x===Number(ps.generations)?"selected":""}>${compactNum(x)}</option>`).join("")}</select></label></div>`;
   return `
-  <div class="product-hero"><h2>Produtos como unidades econômicas</h2><p>Uma leitura de conselho que conecta <b>o que entregamos</b>, <b>de quem dependemos</b>, <b>quanto custa servir</b> e <b>como cada feature se paga</b>. Premissas são mensais, editáveis e separadas de faturas confirmadas.</p></div>
-  <div class="product-tabs">${S.products.features.map(x=>{const e=prodEconomics(x,users,gens),s=prodStatus(e.net);return `<button class="product-tab ${x.id===f.id?"on":""}" onclick="productId='${x.id}';productDeliveryId='';productRevenueIndex=-1;render()"><b>${x.icon} ${esc(x.name)}</b><small>${s.label} · ${fmt(e.net)}</small></button>`;}).join("")}</div>
-  <div class="panel scenario-bar">
-    <label class="fld"><span>Usuários ativos da feature / mês</span><div class="range-buttons">${PROD_USERS.map(x=>`<button class="${x===users?"on":""}" onclick="setProdScenario('users',${x})">${compactNum(x)}</button>`).join("")}</div></label>
-    <label class="fld"><span>Operações de valor / gerações / mês</span><div class="range-buttons">${PROD_GENS.map(x=>`<button class="${x===gens?"on":""}" onclick="setProdScenario('generations',${x})">${compactNum(x)}</button>`).join("")}</div></label>
-    <div><label class="fld"><span>Coorte econômica</span><div class="range-buttons"><button class="${cohort==="free"?"on":""}" onclick="setProdScenario('cohort','free')">Gratuitos</button><button class="${cohort==="mixed"?"on":""}" onclick="setProdScenario('cohort','mixed')">Base mista</button><button class="${cohort==="premium"?"on":""}" onclick="setProdScenario('cohort','premium')">Premium</button></div></label><button class="btn sec" onclick="window.print()">🖨️ Conselho / PDF</button></div>
+  <div class="scenario-bar">
+    <section class="scenario-widget"><h4>${world?"Base total de usuários Tupham":"Usuários ativos da feature / mês"}</h4><div class="scenario-value">${compactNum(baseUsers)}</div><div class="scenario-sub">${world?"Ponto de partida para projetar a ativação da feature.":"Base ativa informada diretamente no cenário manual."}</div><div class="range-buttons">${PROD_USERS.map(x=>`<button class="${x===baseUsers?"on":""}" onclick="setProdScenario('users',${x})">${compactNum(x)}</button>`).join("")}</div></section>
+    <section class="scenario-widget"><h4>Operações de valor / gerações / mês</h4><div class="scenario-value">${compactNum(gens)}</div><div class="scenario-sub">${world?`${compactNum(users)} ativos × ${String(scenario.profile.opsPerActive).replace(".",",")} operações mensais por ativo.`:"Volume de entregas informado diretamente."}</div>${world?`<div class="range-buttons"><button class="on" disabled>calculado pelo mundo</button></div>`:`<div class="range-buttons">${PROD_GENS.map(x=>`<button class="${x===gens?"on":""}" onclick="setProdScenario('generations',${x})">${compactNum(x)}</button>`).join("")}</div>`}</section>
+    <section class="scenario-widget"><h4>Simulação</h4><div class="scenario-value">${world?"Mundo simulado":"Manual"}</div><div class="scenario-sub">${world?"Projeta ativação e frequência próprias de cada feature.":"Você controla usuários ativos e operações sem projeção."}</div><div class="range-buttons"><button class="${!world?"on":""}" onclick="setProdScenario('simulationMode','manual')">Manual</button><button class="${world?"on":""}" onclick="setProdScenario('simulationMode','world')">🌎 Mundo simulado</button></div></section>
+    <section class="scenario-widget"><h4>Coorte econômica</h4><div class="scenario-value">${cohort==="free"?"Gratuitos":cohort==="premium"?"Premium":"Base mista"}</div><div class="scenario-sub">Define quais receitas entram no cenário financeiro.</div><div class="range-buttons"><button class="${cohort==="free"?"on":""}" onclick="setProdScenario('cohort','free')">Gratuitos</button><button class="${cohort==="mixed"?"on":""}" onclick="setProdScenario('cohort','mixed')">Mista</button><button class="${cohort==="premium"?"on":""}" onclick="setProdScenario('cohort','premium')">Premium</button><button onclick="window.print()">🖨️ PDF</button></div></section>
   </div>
+  <div class="product-tabs">${S.products.features.map(x=>{const sc=prodScenario(x),e=prodEconomics(x,sc.users,sc.gens,cohort),s=prodStatus(e.net);return `<button class="product-tab ${x.id===f.id?"on":""}" onclick="setProductFeature('${x.id}')"><b>${x.icon} ${esc(x.name)}</b><small>${s.label} · ${fmt(e.net)}</small></button>`;}).join("")}</div>
+  ${simulationNote}
   <div class="cards">
     <div class="card green"><div class="lbl">Receita atribuída</div><div class="val">${fmt(E.revenue)}</div><div class="sub">coorte ${cohort==="free"?"gratuita (só ads)":cohort==="premium"?"premium (sem ads)":"mista"}</div></div>
     <div class="card"><div class="lbl">Custo de servir</div><div class="val">${fmt(E.fixed+E.variable)}</div><div class="sub">fixo ${fmt(E.fixed)} · variável ${fmt(E.variable)}</div></div>
@@ -1351,8 +1379,8 @@ function vProd(){
     <div class="panel"><h3>${f.icon} O que é entregue <span class="pill">${esc(f.stage)}</span></h3><p class="muted">Cada item representa uma unidade concreta de valor. Abra para ver o custo efetivo de cada provedor no cenário selecionado.</p><div class="artifact-list">${deliveryCards}</div></div>
     <div class="panel"><h3>💰 Fontes de receita <span class="pill">${cohort==="free"?"gratuitos":cohort==="premium"?"premium":"base mista"}</span></h3><p class="muted">A mesma ótica por unidade: receita efetiva por operação e total mensal, já respeitando a coorte selecionada.</p><div class="artifact-list">${revenueCards}</div></div>
   </div>
-  <div class="panel"><h3>Receitas × custos mensais · ${esc(f.name)}</h3><p class="muted">Eixo X = checkpoints de operações/gerações. Eixo Y = valor mensal para a base selecionada de <b>${compactNum(users)} usuários ativos</b>.</p><div class="matrix-legend"><span style="color:var(--green)">━ receita</span><span style="color:var(--red)">━ custo total</span><span>● ponto maior = checkpoint atual</span><span>cruzamento das linhas = break-even</span></div><div style="height:390px"><canvas id="prodMatrixChart"></canvas></div><details style="margin-top:12px"><summary style="cursor:pointer;font-family:var(--mono);font-weight:700">Ver saldo líquido exato da matriz</summary><div style="overflow:auto;margin-top:10px"><table class="matrix"><thead><tr><th>Volume × MAU</th>${PROD_USERS.map(u=>`<th>${compactNum(u)} usuários</th>`).join("")}</tr></thead><tbody>${matrixRows}</tbody></table></div></details></div>
-  <div class="chassis-grid"><div class="panel"><h3>Provedores, endpoints e dependências</h3>${providers}</div><div class="panel"><h3>Leitura do portfólio neste cenário</h3><div class="cards" style="grid-template-columns:1fr 1fr"><div class="card green"><div class="lbl">Receita total</div><div class="val" style="font-size:20px">${fmt(port.revenue)}</div></div><div class="card ${port.net>=0?"green":"red"}"><div class="lbl">Saldo portfólio</div><div class="val" style="font-size:20px">${fmt(port.net)}</div></div></div><div class="mini-list">${portfolioCards}</div><p class="source-note">Leitura comparável: aplica a mesma base de usuários e operações a cada centro de custo.</p></div></div>
+  <div class="panel"><h3>Receitas × custos mensais · ${esc(f.name)}</h3><p class="muted">Eixo X = checkpoints de operações/gerações. Eixo Y = valor mensal para <b>${compactNum(users)} usuários ativos</b>${world?` projetados a partir de ${compactNum(baseUsers)} usuários totais`:""}.</p>${chartShortcuts}<div class="matrix-legend"><span style="color:var(--green)">━ receita</span><span style="color:var(--red)">━ custo total</span><span>● ponto maior = cenário atual</span><span>cruzamento das linhas = break-even</span></div><div style="height:390px"><canvas id="prodMatrixChart"></canvas></div><details style="margin-top:12px"><summary style="cursor:pointer;font-family:var(--mono);font-weight:700">${world?"Ver matriz manual de sensibilidade":"Ver saldo líquido exato da matriz"}</summary><div style="overflow:auto;margin-top:10px"><table class="matrix"><thead><tr><th>Volume × MAU</th>${PROD_USERS.map(u=>`<th>${compactNum(u)} usuários</th>`).join("")}</tr></thead><tbody>${matrixRows}</tbody></table></div></details></div>
+  <div class="chassis-grid"><div class="panel"><h3>Provedores, endpoints e dependências</h3>${providers}</div><div class="panel"><h3>Leitura do portfólio neste cenário</h3><div class="cards" style="grid-template-columns:1fr 1fr"><div class="card green"><div class="lbl">Receita total</div><div class="val" style="font-size:20px">${fmt(port.revenue)}</div></div><div class="card ${port.net>=0?"green":"red"}"><div class="lbl">Saldo portfólio</div><div class="val" style="font-size:20px">${fmt(port.net)}</div></div></div><div class="mini-list">${portfolioCards}</div><p class="source-note">${world?"Cada feature aplica sua própria taxa de ativação e frequência sobre a mesma base total Tupham.":"Leitura comparável: aplica a mesma base de usuários e operações a cada centro de custo."}</p></div></div>
   <div class="twin-grid"><div class="panel"><h3>Riscos sob controle</h3><div class="mini-list">${f.risks.map(x=>`<div class="mini-item" style="border-left-color:var(--red)"><b>${esc(x)}</b></div>`).join("")}</div></div><div class="panel"><h3>Próximas alavancas</h3><div class="mini-list">${f.next.map(x=>`<div class="mini-item" style="border-left-color:var(--green)"><b>${esc(x)}</b></div>`).join("")}</div></div></div>
   <div class="panel"><h3>Custos fixos mensais <span class="pill">total ${fmt(E.fixed)}</span></h3><div style="overflow:auto"><table class="money-table"><thead><tr><th>Componente</th><th>Provedor</th><th>Qualidade da fonte</th><th class="r">R$ / mês</th></tr></thead><tbody>${fixedRows}</tbody></table></div></div>
   <div class="panel"><h3>Custos variáveis <span class="pill">cenário ${fmt(E.variable)}</span></h3><div style="overflow:auto"><table class="money-table"><thead><tr><th>Componente</th><th>Provedor / driver</th><th>R$ unitário</th><th>Cota grátis / mês</th><th class="r">Custo cenário</th></tr></thead><tbody>${varRows}</tbody></table></div><p class="source-note">Custo variável = máximo entre zero e (volume − cota gratuita) × custo unitário. Cotas de conta compartilhadas devem ser rateadas com cautela para não contar o benefício duas vezes.</p></div>
@@ -1361,15 +1389,16 @@ function vProd(){
 
 function drawProd(){
   const cv=document.getElementById("prodMatrixChart"); if(!cv||!window.Chart)return;
-  const f=prodFeature(),ps=S.products.settings||{},users=Number(ps.users)||1000,gens=Number(ps.generations)||1000;
-  const checkpoints=PROD_GENS.map(g=>prodEconomics(f,users,g));
+  const f=prodFeature(),scenario=prodScenario(f),users=scenario.users,gens=scenario.gens;
+  const graphGens=[...PROD_GENS];if(!graphGens.includes(gens))graphGens.push(gens);graphGens.sort((a,b)=>a-b);
+  const checkpoints=graphGens.map(g=>prodEconomics(f,users,g));
   const revenues=checkpoints.map(x=>x.revenue),costs=checkpoints.map(x=>x.fixed+x.variable);
-  const radii=PROD_GENS.map(g=>g===gens?7:4.5),borders=PROD_GENS.map(g=>g===gens?3:2);
+  const radii=graphGens.map(g=>g===gens?7:4.5),borders=graphGens.map(g=>g===gens?3:2),pointBorders=graphGens.map(g=>g===gens?"#1e1810":"#fbf7ec");
   const datasets=[
-    {label:"Receita",data:revenues,borderColor:"#5f7d3a",backgroundColor:"#5f7d3a",borderWidth:3.5,pointRadius:radii,pointHoverRadius:8,pointBorderColor:PROD_GENS.map(g=>g===gens?"#1e1810":"#fbf7ec"),pointBorderWidth:borders,pointBackgroundColor:"#5f7d3a",tension:.24,fill:false},
-    {label:"Custo total",data:costs,borderColor:"#b5432a",backgroundColor:"#b5432a",borderWidth:3.5,pointRadius:radii,pointHoverRadius:8,pointBorderColor:PROD_GENS.map(g=>g===gens?"#1e1810":"#fbf7ec"),pointBorderWidth:borders,pointBackgroundColor:"#b5432a",tension:.24,fill:false}
+    {label:"Receita",data:revenues,borderColor:"#5f7d3a",backgroundColor:"#5f7d3a",borderWidth:3.5,pointRadius:radii,pointHoverRadius:8,pointBorderColor:pointBorders,pointBorderWidth:borders,pointBackgroundColor:"#5f7d3a",tension:.24,fill:false},
+    {label:"Custo total",data:costs,borderColor:"#b5432a",backgroundColor:"#b5432a",borderWidth:3.5,pointRadius:radii,pointHoverRadius:8,pointBorderColor:pointBorders,pointBorderWidth:borders,pointBackgroundColor:"#b5432a",tension:.24,fill:false}
   ];
-  charts.push(new Chart(cv,{type:"line",data:{labels:PROD_GENS.map(compactNum),datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{position:"bottom",labels:{usePointStyle:true,boxWidth:8,padding:18,font:{size:10}}},tooltip:{callbacks:{title:items=>items.length?`${items[0].label} operações / gerações`:"",label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`,afterBody:items=>{const rev=items.find(x=>x.dataset.label==="Receita"),cost=items.find(x=>x.dataset.label==="Custo total");return rev&&cost?`Saldo líquido: ${fmt(rev.parsed.y-cost.parsed.y)}`:"";}}},scales:{x:{title:{display:true,text:"Operações de valor / gerações / mês"},grid:{display:false}},y:{beginAtZero:true,title:{display:true,text:"Valor mensal (R$)"},ticks:{callback:v=>compactNum(Math.abs(Number(v)))}}}}}}));
+  charts.push(new Chart(cv,{type:"line",data:{labels:graphGens.map(compactNum),datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{position:"bottom",labels:{usePointStyle:true,boxWidth:8,padding:18,font:{size:10}}},tooltip:{callbacks:{title:items=>items.length?`${items[0].label} operações / gerações`:"",label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`,afterBody:items=>{const rev=items.find(x=>x.dataset.label==="Receita"),cost=items.find(x=>x.dataset.label==="Custo total");return rev&&cost?`Saldo líquido: ${fmt(rev.parsed.y-cost.parsed.y)}`:"";}}},scales:{x:{title:{display:true,text:"Operações de valor / gerações / mês"},grid:{display:false}},y:{beginAtZero:true,title:{display:true,text:"Valor mensal (R$)"},ticks:{callback:v=>compactNum(Math.abs(Number(v)))}}}}}}));
 }
 
 /* ============ CONTÁBIL / ANUAL ============ */

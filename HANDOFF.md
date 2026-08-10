@@ -27,6 +27,9 @@ Ver também `CLAUDE.md` (contexto base do projeto).
 > - Cenários mensais de 10/100/1.000/10.000/100.000 operações × 10/100/1.000/10.000/100.000/1.000.000 usuários ativos.
 > - Entregas consolidadas em artefatos financeiros; cada item exibe custo efetivo dinâmico e abre a composição por provedor e serviço.
 > - Fontes de receita no mesmo nível visual das entregas e gráfico de linhas comparando receita × custo por volume de operações e base ativa, com saldo líquido exato preservado em tabela para auditoria.
+> - Seletores de cenário ficam no topo em quatro widgets iguais: base, operações, simulação e coorte; o banner introdutório foi removido.
+> - O gráfico oferece atalhos próprios para feature, base de usuários e operações.
+> - O modo `Mundo simulado` recebe a base total Tupham e aplica taxa de ativação + operações mensais por ativo específicas de cada feature, exibindo toda a cadeia de premissas e recalculando o portfólio feature a feature.
 > - Alternância de coorte Gratuitos (só ads), Base mista (ads + premium atribuído) e Premium (sem ads).
 > - Custos fixos, custos unitários, cotas grátis e receitas unitárias são editáveis e persistem em `S.products`.
 > - Cada feature documenta entregas, provedores/endpoints, dependências, riscos, próximas alavancas, payback, break-even e tese para conselho.
