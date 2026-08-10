@@ -34,6 +34,7 @@ Ver também `CLAUDE.md` (contexto base do projeto).
 > - O gráfico oferece atalhos próprios para feature, base de usuários e operações.
 > - O modo `Mundo simulado` recebe a base total Tupham e aplica taxa de ativação + operações mensais por ativo específicas de cada feature, exibindo toda a cadeia de premissas e recalculando o portfólio feature a feature.
 > - O card do Mundo Simulado é um resumo numérico enxuto com cinco checkpoints: base Tupham, ativação, ativos projetados, operações por ativo e operações mensais.
+> - Drivers de receita revisados: anúncios e rewarded escalam por operação/exposição; premium atribuído escala por usuário ativo. Chat InlineAdBubble e inline ads de Esportes foram migrados de `user` para `generation` na versão 5 do portfólio.
 > - Chat usa hipótese conservadora de 50% de ativação e 10 gerações mensais por ativo. O modelo offline vem embarcado no app; Worker/R2 da Cloudflare foram removidos do centro de custo do Chat.
 > - Alternância de coorte Gratuitos (só ads), Base mista (ads + premium atribuído) e Premium (sem ads).
 > - Custos fixos, custos unitários, cotas grátis e receitas unitárias são editáveis e persistem em `S.products`.
